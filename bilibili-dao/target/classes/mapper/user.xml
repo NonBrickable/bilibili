@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 为根元素节点， 一个namespace对应一个dao -->
+<mapper namespace="com.bilibili.dao.UserDao">
+    <!--id推荐使用接口中的方法，resultType使用sql的java对象的全限定名称-->
+    <select id="getUserByphone" parameterType="java.lang.String" resultType="com.bilibili.pojo.User">
+        select *
+        from t_user
+        where phone=#{phone}
+    </select>
+
+    <insert id="addUser" parameterType="com.bilibili.pojo.User" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user(phone, email, password, salt, createtime)
+        values (#{phone}, #{email}, #{password}, #{salt}, #{createTime})
+    </insert>
+
+    <insert id="addUserInfo" parameterType="com.bilibili.pojo.UserInfo" >
+        insert into t_user_info(userId ,nick,avatar,sign,gender,birth,createTime) values
+            (#{userId},#{nick},#{avatar},#{sign},#{gender},#{birth},#{createTime})
+    </insert>
+
+    <select id="getUserByid" parameterType="java.lang.Long" resultType="com.bilibili.pojo.User">
+        select * from t_user where id=#{id}
+    </select>
+    <select id="getUserInfoByid" parameterType="long" resultType="com.bilibili.pojo.UserInfo">
+        select * from t_user_info where user_id = #{userId}
+    </select>
+</mapper>
