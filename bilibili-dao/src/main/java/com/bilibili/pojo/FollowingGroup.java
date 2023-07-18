@@ -5,19 +5,17 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInfo {
+public class FollowingGroup {
     private Long id;
     private Long userId;
-    private String nick;
-    private String avatar;
-    private String sign;
-    private String gender;
-    private String birth;
-    private Boolean followed;
+    private String name;
+    private Integer type;
     private Date createTime;
     private Date updateTime;
+    private List<UserInfo> userInfoList;
 }

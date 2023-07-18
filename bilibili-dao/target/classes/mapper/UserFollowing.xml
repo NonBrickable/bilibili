@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 为根元素节点， 一个namespace对应一个dao -->
+<mapper namespace="com.bilibili.dao.UserFollowingDao">
+    <delete id="deleteFollowings">
+        delete
+        from t_user_following
+        where user_id = #{userId}
+          and following_id = #{followingId}
+    </delete>
+    <insert id="addFollowings" parameterType="com.bilibili.pojo.UserFollowing">
+        insert into t_user_following
+            (user_id, following_id, group_id, create_time)
+        values (#{userId}, #{followingId}, #{groupId}, now())
+    </insert>
+    <select id = "getUserFollowings" parameterType="long" resultType="com.bilibili.pojo.UserFollowing">
+        select *
+        from t_user_following
+        where user_id = #{userId}
+    </select>
+    <select id="getUserFansList" parameterType="long" resultType="com.bilibili.pojo.UserFollowing">
+        select *
+        from t_user_following
+        where following_id = #{userId}
+    </select>
+</mapper>

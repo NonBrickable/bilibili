@@ -9,15 +9,12 @@ import java.util.Date;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserInfo {
+public class UserFollowing {
     private Long id;
     private Long userId;
-    private String nick;
-    private String avatar;
-    private String sign;
-    private String gender;
-    private String birth;
-    private Boolean followed;
+    private Long followingId;
+    private Long groupId;
     private Date createTime;
     private Date updateTime;
+    private UserInfo userInfo;
 }

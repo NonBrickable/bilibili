@@ -1,4 +1,4 @@
-package com.bilibili.handler;
+package com.bilibili.exception;
 
 import com.bilibili.exception.ConditionException;
 import com.bilibili.common.JsonResponse;

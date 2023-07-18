@@ -20,7 +20,6 @@ public class UserService {
     @Autowired
     private UserDao userDao;
 
-
     //注册
     public JsonResponse<String> addUser(User user) {
         String phone = user.getPhone();
@@ -44,7 +43,6 @@ public class UserService {
         String md5password = MD5Util.sign(rawpassword, salt, "UTF-8");
         user.setSalt(salt);
         user.setPassword(md5password);
-        user.setCreateTime(now);
         userDao.addUser(user);
         //添加用户信息
         UserInfo userInfo = new UserInfo();
@@ -52,7 +50,6 @@ public class UserService {
         userInfo.setNick(UserConstant.DEFAULT_NICK);
         userInfo.setGender(UserConstant.GENDER_MALE);
         userInfo.setBirth(UserConstant.DEFAULT_BIRTH);
-        userInfo.setCreateTime(now);
         userDao.addUserInfo(userInfo);
         return JsonResponse.success("成功");
     }
@@ -89,9 +86,38 @@ public class UserService {
 
     //获取用户信息
     public User getUserInfo(Long userid) {
-        User user = userDao.getUserByid(userid);
-        UserInfo userInfo = userDao.getUserInfoByid(userid);
+        User user = userDao.getUserById(userid);
+        UserInfo userInfo = userDao.getUserInfoById(userid);
         user.setUserInfo(userInfo);
         return user;
+    }
+
+
+    //更新用户基本信息
+    public void updateUsers(User user) throws Exception {
+        Long id = user.getId();
+        User dbUser = userDao.getUserById(id);
+        if (dbUser == null) {
+            throw new ConditionException("用户不存在");
+        }
+        if (!StringUtils.isNullOrEmpty(user.getPassword())) {
+            String rawPassword = RSAUtil.decrypt(user.getPassword());
+            String md5Password = MD5Util.sign(rawPassword, dbUser.getSalt(), "UTF-8");
+            user.setPassword(md5Password);
+        }
+        userDao.updateUsers(user);
+    }
+
+    //更新用户详细信息
+    public void updateUserInfos(UserInfo userInfo) {
+        userDao.updateUserInfos(userInfo);
+    }
+
+    public User getUserById(Long id) {
+        return userDao.getUserById(id);
+    }
+
+    public List<UserInfo> getUserInfoByIds(List<Long> followingIdList) {
+        return userDao.getUserInfoByUserIds(followingIdList);
     }
 }

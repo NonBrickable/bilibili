@@ -42,4 +42,19 @@ public class UserController {
         User user = userService.getUserInfo(userId);
         return new JsonResponse<>(user);
     }
+    @PutMapping ("/updateUsers")//5.更新用户基本信息
+    public JsonResponse<String> updateUsers(@RequestBody User user) throws Exception {
+        Long userId = userSupport.getCurrentUserId();
+        user.setId(userId);
+        userService.updateUsers(user);
+        return JsonResponse.success();
+    }
+
+    @PutMapping ("/updateUserInfos")//6.更新用户详细信息
+    public JsonResponse<String> updateUserInfos(@RequestBody UserInfo userInfo){
+        Long userId = userSupport.getCurrentUserId();
+        userInfo.setUserId(userId);
+        userService.updateUserInfos(userInfo);
+        return JsonResponse.success();
+    }
 }
