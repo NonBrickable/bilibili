@@ -4,6 +4,7 @@ import com.bilibili.common.JsonResponse;
 import com.bilibili.controller.support.UserSupport;
 import com.bilibili.pojo.FollowingGroup;
 import com.bilibili.pojo.UserFollowing;
+import com.bilibili.service.FollowingGroupService;
 import com.bilibili.service.UserFollowingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -16,6 +17,8 @@ public class UserFollowingController {
     private UserFollowingService userFollowingService;
     @Autowired
     private UserSupport userSupport;
+    @Autowired
+    private FollowingGroupService followingGroupService;
 
     //1.新增关注用户
     @PostMapping("/add-following")
@@ -27,8 +30,7 @@ public class UserFollowingController {
     }
 
 
-    //2.获取关注分组
-    // TODO: 2023/7/19 存在bug
+    //2.获取关注用户（按照分组）
     @GetMapping("/following-list")
     public JsonResponse<List<FollowingGroup>> getUserFollowings() {
         long userId = userSupport.getCurrentUserId();
@@ -37,7 +39,6 @@ public class UserFollowingController {
     }
 
     //3.获取粉丝列表
-    // TODO: 2023/7/19  存在bug
     @GetMapping("/fans-list")
     public JsonResponse<List<UserFollowing>> getUserFans() {
         long userId = userSupport.getCurrentUserId();
@@ -45,10 +46,27 @@ public class UserFollowingController {
         return new JsonResponse<>(list);
     }
 
-    @GetMapping("/test")
-    public JsonResponse<List<FollowingGroup>> test(){
-        long userId = userSupport.getCurrentUserId();
-        List<FollowingGroup> list = userFollowingService.test(userId);
-        return new JsonResponse<>(list);
+    //5.添加关注分组
+    @PostMapping("/add-following-group")
+    public JsonResponse<Long> addUserFollowingGroup(@RequestBody FollowingGroup followingGroup) {
+        Long userId = userSupport.getCurrentUserId();
+        followingGroup.setUserId(userId);
+        Long id = followingGroupService.addUserFollowingGroup(followingGroup);
+        return new JsonResponse<>(id);
+    }
+
+    //6.获取关注分组
+    @GetMapping("/following-group")
+    public JsonResponse<List<FollowingGroup>> getFollowingGroupByUserId(){
+        Long userId = userSupport.getCurrentUserId();
+        List<FollowingGroup> followingGroupList = followingGroupService.getFollowingGroupByUserId(userId);
+        return new JsonResponse<>(followingGroupList);
     }
 }
+
+
+
+
+
+
+

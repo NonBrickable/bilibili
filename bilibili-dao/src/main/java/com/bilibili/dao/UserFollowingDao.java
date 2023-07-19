@@ -13,4 +13,6 @@ public interface UserFollowingDao {
 
     List<UserFollowing> getUserFollowings(Long userId);
     List<UserFollowing> getUserFansList(Long userId);
+
+    Integer checkFollowingStatus(@Param("followingId") Long followingId, @Param("userId") Long userId);
 }

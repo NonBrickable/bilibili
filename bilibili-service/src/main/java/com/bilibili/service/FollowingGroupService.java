@@ -1,5 +1,6 @@
 package com.bilibili.service;
 
+import com.bilibili.common.UserConstant;
 import com.bilibili.dao.FollowingGroupDao;
 import com.bilibili.pojo.FollowingGroup;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,4 +23,22 @@ public class FollowingGroupService {
     public List<FollowingGroup> getFollowingGroupByUserId(Long userId){
         return followingGroupDao.getFollowingGroupByUserId(userId);
     }
+    public Long addUserFollowingGroup(FollowingGroup followingGroup){
+        followingGroup.setType(UserConstant.USER_FOLLOWING_GROUP_TYPE_USER);
+        followingGroupDao.addUserFollowingGroup(followingGroup);
+        return followingGroup.getId();
+    }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+

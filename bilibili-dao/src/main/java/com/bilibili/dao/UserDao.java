@@ -7,10 +7,7 @@ import com.bilibili.pojo.UserInfo;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Mapper
 public interface UserDao {
@@ -30,4 +27,8 @@ public interface UserDao {
     Integer updateUserInfos(UserInfo userInfo);
 
     List<UserInfo> getUserInfoByUserIds(List<Long> followingIdList);
+
+    Integer pageCountUserInfos(Map<String, Object> params);
+
+    List<UserInfo> pageListUserInfos(Map<String, Object> params);
 }

@@ -1,6 +1,8 @@
 package com.bilibili.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.bilibili.common.JsonResponse;
+import com.bilibili.common.PageResult;
 import com.bilibili.common.UserConstant;
 import com.bilibili.dao.UserDao;
 import com.bilibili.pojo.*;
@@ -119,5 +121,19 @@ public class UserService {
 
     public List<UserInfo> getUserInfoByIds(List<Long> followingIdList) {
         return userDao.getUserInfoByUserIds(followingIdList);
+    }
+
+    //no-当前页码 size-当前一页有多少条数据 nick-昵称
+    public PageResult<UserInfo> pageListUserInfos(JSONObject params) {
+        Integer no = params.getInteger("no");
+        Integer size = params.getInteger("size");
+        params.put("start", (no - 1) * size);//起始页码，查第一页的话，就从数据库第0条开始查
+        params.put("limit", size);//每次查询多少条数据
+        Integer total = userDao.pageCountUserInfos(params);
+        List<UserInfo> list = new ArrayList<>();
+        if (total > 0) {
+            list = userDao.pageListUserInfos(params);
+        }
+        return new PageResult<>(total, list);
     }
 }

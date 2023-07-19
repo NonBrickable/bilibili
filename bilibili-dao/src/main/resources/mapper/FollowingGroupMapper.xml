@@ -20,4 +20,8 @@
         from t_following_group
         where user_id = #{userId} or type in ('0','1','2')
     </select>
+    <insert id="addUserFollowingGroup" parameterType="com.bilibili.pojo.FollowingGroup" useGeneratedKeys="true" keyProperty="id">
+        insert into t_following_group(user_id, name, type, create_time)
+        values (#{userId}, #{name}, #{type}, now())
+    </insert>
 </mapper>

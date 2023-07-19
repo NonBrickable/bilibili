@@ -133,7 +133,15 @@ public class UserFollowingService {
         return fansList;
     }
 
-    public List<FollowingGroup> test(Long userId) {
-        return followingGroupService.getFollowingGroupByUserId(userId);
+    public List<UserInfo >checkFollowingStatus(List<UserInfo> list, Long userId) {
+        List<UserFollowing> userFollowingList = userFollowingDao.getUserFollowings(userId);
+        for(UserInfo userInfo:list){
+            for(UserFollowing userFollowing:userFollowingList){
+                if(userInfo.getUserId().equals(userFollowing.getFollowingId())){
+                    userInfo.setFollowed(true);
+                }
+            }
+        }
+        return list;
     }
 }

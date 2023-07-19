@@ -26,4 +26,10 @@
         from t_user_following
         where following_id = #{userId}
     </select>
+    <select id="checkFollowingStatus" resultType="integer">
+        select count(1)
+        from t_user_following
+        where user_id = #{userId}
+          and following_id = #{followingId}
+    </select>
 </mapper>
