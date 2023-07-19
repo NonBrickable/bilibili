@@ -28,6 +28,7 @@ public class UserFollowingController {
 
 
     //2.获取关注分组
+    // TODO: 2023/7/19 存在bug
     @GetMapping("/following-list")
     public JsonResponse<List<FollowingGroup>> getUserFollowings() {
         long userId = userSupport.getCurrentUserId();
@@ -36,10 +37,18 @@ public class UserFollowingController {
     }
 
     //3.获取粉丝列表
+    // TODO: 2023/7/19  存在bug
     @GetMapping("/fans-list")
     public JsonResponse<List<UserFollowing>> getUserFans() {
         long userId = userSupport.getCurrentUserId();
         List<UserFollowing> list = userFollowingService.getUserFans(userId);
+        return new JsonResponse<>(list);
+    }
+
+    @GetMapping("/test")
+    public JsonResponse<List<FollowingGroup>> test(){
+        long userId = userSupport.getCurrentUserId();
+        List<FollowingGroup> list = userFollowingService.test(userId);
         return new JsonResponse<>(list);
     }
 }

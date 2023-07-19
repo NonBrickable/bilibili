@@ -18,6 +18,6 @@
     <select id="getFollowingGroupByUserId" parameterType="long" resultType="com.bilibili.pojo.FollowingGroup">
         select *
         from t_following_group
-        where user_id = #{userId} or 'type' in ('0','1','2')
+        where user_id = #{userId} or type in ('0','1','2')
     </select>
 </mapper>

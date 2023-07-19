@@ -55,19 +55,23 @@ public class UserFollowingService {
 
     //获取关注列表
     public List<FollowingGroup> getUserFollowings(Long userId) {
+        //获取关注的所有人
         List<UserFollowing> list = userFollowingDao.getUserFollowings(userId);
-        List<Long> followingIdList = list.stream().map(UserFollowing::getFollowingId).collect(Collectors.toList());
+        List<Long> followingIdList = new ArrayList<>();
+        //抽出关注人的userId
+        for (UserFollowing userFollowing : list) {
+            followingIdList.add(userFollowing.getFollowingId());
+        }
+        //查询关注人的个人信息
         List<UserInfo> userInfoList = new ArrayList<>();
         if (followingIdList.size() > 0) {
             userInfoList = userService.getUserInfoByIds(followingIdList);
         }
-        if(userInfoList.size() == 0){
-            throw new ConditionException("1");
-        }
-        // TODO: 2023/7/19 这里有问题 
+
+        //个人信息放到UserFollowing里，这样每个userFollowing里面都有个人信息了
         for (UserFollowing userFollowing : list) {
             for (UserInfo userInfo : userInfoList) {
-                if (userFollowing.getUserId().equals(userInfo.getUserId())) {
+                if (userFollowing.getFollowingId().equals(userInfo.getUserId())) {
                     userFollowing.setUserInfo(userInfo);
                 }
             }
@@ -81,11 +85,13 @@ public class UserFollowingService {
         result.add(AllFollowingGroup);
         //每个分组
         for (FollowingGroup followingGroup : followingGroupList) {
+            List<UserInfo> userInfos = new ArrayList<>();
             for (UserFollowing userFollowing : list) {
-                if (userFollowing.getGroupId().equals(followingGroup.getId())) {
-                    followingGroup.getUserInfoList().add(userFollowing.getUserInfo());
+                if (followingGroup.getId().equals(userFollowing.getGroupId())) {
+                    userInfos.add(userFollowing.getUserInfo());
                 }
             }
+            followingGroup.setUserInfoList(userInfos);
             result.add(followingGroup);
         }
         return result;
@@ -100,27 +106,34 @@ public class UserFollowingService {
     public List<UserFollowing> getUserFans(Long userId) {
         //获取粉丝的粗略列表
         List<UserFollowing> fansList = userFollowingDao.getUserFansList(userId);
-        List<Long> userIdList = fansList.stream().map(UserFollowing::getUserId).collect(Collectors.toList());
+        List<Long> userIdList = new ArrayList<>();
+        for (UserFollowing userFollowing : fansList) {
+            userIdList.add(userFollowing.getUserId());
+        }
         List<UserInfo> userInfoList = new ArrayList<>();
-        if(userIdList.size() > 0){
+        if (userIdList.size() > 0) {
             userInfoList = userService.getUserInfoByIds(userIdList);
         }
         //获取关注的粗略列表
         List<UserFollowing> followingList = userFollowingDao.getUserFollowings(userId);
         //关联粉丝的UserFollowing和UserInfo
-        for(UserFollowing userFollowing:fansList){
-            for(UserInfo userInfo:userInfoList){
-                if(userFollowing.getUserId().equals(userInfo.getUserId())){
+        for (UserFollowing userFollowing : fansList) {
+            for (UserInfo userInfo : userInfoList) {
+                if (userFollowing.getUserId().equals(userInfo.getUserId())) {
                     userInfo.setFollowed(false);
                     userFollowing.setUserInfo(userInfo);
                 }
             }
-            for(UserFollowing following:followingList) {
+            for (UserFollowing following : followingList) {
                 if (userFollowing.getFollowingId().equals(following.getFollowingId())) {
                     userFollowing.getUserInfo().setFollowed(true);
                 }
             }
         }
         return fansList;
+    }
+
+    public List<FollowingGroup> test(Long userId) {
+        return followingGroupService.getFollowingGroupByUserId(userId);
     }
 }

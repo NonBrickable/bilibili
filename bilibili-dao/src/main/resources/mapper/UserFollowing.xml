@@ -16,7 +16,7 @@
             (user_id, following_id, group_id, create_time)
         values (#{userId}, #{followingId}, #{groupId}, now())
     </insert>
-    <select id = "getUserFollowings" parameterType="long" resultType="com.bilibili.pojo.UserFollowing">
+    <select id="getUserFollowings" parameterType="long" resultType="com.bilibili.pojo.UserFollowing">
         select *
         from t_user_following
         where user_id = #{userId}
