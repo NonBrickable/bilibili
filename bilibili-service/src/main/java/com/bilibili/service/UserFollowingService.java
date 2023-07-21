@@ -79,7 +79,7 @@ public class UserFollowingService {
         List<FollowingGroup> followingGroupList = followingGroupService.getFollowingGroupByUserId(userId);
         //全体分组
         FollowingGroup AllFollowingGroup = new FollowingGroup();
-        AllFollowingGroup.setName("全部关注");
+        AllFollowingGroup.setName(UserConstant.USER_FOLLOWING_GROUP_ALL_NAME);
         AllFollowingGroup.setUserInfoList(userInfoList);
         List<FollowingGroup> result = new ArrayList<>();
         result.add(AllFollowingGroup);
