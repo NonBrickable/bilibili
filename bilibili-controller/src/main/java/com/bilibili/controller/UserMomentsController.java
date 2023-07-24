@@ -4,20 +4,32 @@ import com.bilibili.common.JsonResponse;
 import com.bilibili.controller.support.UserSupport;
 import com.bilibili.pojo.UserMoments;
 import com.bilibili.service.UserMomentsService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 public class UserMomentsController {
+    @Autowired
     private UserSupport userSupport;
+    @Autowired
     private UserMomentsService userMomentsService;
 
     //1.新增动态
     @PostMapping("/add-moment")
-    public JsonResponse<String> addUserMoments(UserMoments userMoments){
+    public JsonResponse<String> addUserMoments(@RequestBody UserMoments userMoments) throws Exception {
         Long userId = userSupport.getCurrentUserId();
         userMoments.setUserId(userId);
         userMomentsService.addUserMoments(userMoments);
         return new JsonResponse<>("新建动态成功");
+    }
+
+    //2.获取动态
+    @GetMapping("/user-subscribed-moments")
+    public JsonResponse<List<UserMoments>> getUserSubscribedMoments(){
+        long userId = userSupport.getCurrentUserId();
+        List<UserMoments> userMomentsList = userMomentsService.getUserSubscribedMoments(userId);
+        return new JsonResponse<>(userMomentsList);
     }
 }
