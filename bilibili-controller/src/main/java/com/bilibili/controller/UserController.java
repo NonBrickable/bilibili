@@ -26,24 +26,43 @@ public class UserController {
     @Autowired
     private UserFollowingService userFollowingService;
 
-    @GetMapping("/rsa-pks")//1.获取RSA公钥
+    /**
+     * 获取RSA公钥
+     * @return
+     */
+    @GetMapping("/rsa-pks")
     public JsonResponse<String> getRsaPublicKey() {
         String pk = RSAUtil.getPublicKeyStr();
         return JsonResponse.success(pk);
     }
 
-    @PostMapping("/register")//2.注册
+    /**
+     * 注册
+     * @param user
+     * @return
+     */
+    @PostMapping("/register")
     public JsonResponse<String> addUser(@RequestBody User user) {
         userService.addUser(user);
         return JsonResponse.success();
     }
 
-    @PostMapping("/user-tokens")//3.登录接口
+    /**
+     * 登录
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/user-tokens")
     public JsonResponse<String> login(@RequestBody User user) throws Exception {
         String token = userService.login(user);
         return new JsonResponse<>(token);
     }
 
+    /**
+     * 获取用户信息
+     * @return
+     */
     @GetMapping("/userInfo")//4.获取用户信息
     public JsonResponse<User> getUserInfo() {
         Long userId = userSupport.getCurrentUserId();
@@ -51,7 +70,13 @@ public class UserController {
         return new JsonResponse<>(user);
     }
 
-    @PutMapping("/updateUsers")//5.更新用户基本信息
+    /**
+     * 更新用户基本信息
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @PutMapping("/updateUsers")
     public JsonResponse<String> updateUsers(@RequestBody User user) throws Exception {
         Long userId = userSupport.getCurrentUserId();
         user.setId(userId);
@@ -59,7 +84,12 @@ public class UserController {
         return JsonResponse.success();
     }
 
-    @PutMapping("/updateUserInfos")//6.更新用户详细信息
+    /**
+     * 更新用户详细信息
+     * @param userInfo
+     * @return
+     */
+    @PutMapping("/updateUserInfos")
     public JsonResponse<String> updateUserInfos(@RequestBody UserInfo userInfo) {
         Long userId = userSupport.getCurrentUserId();
         userInfo.setUserId(userId);
@@ -67,8 +97,14 @@ public class UserController {
         return JsonResponse.success();
     }
 
-    //分页查询
-    @GetMapping("page-user") //7.分页查询用户信息 no-当前页码 size-当前一页有多少条数据 nick-昵称
+    /**
+     * 分页查询用户信息
+     * @param no 当前页码
+     * @param size 当前页有多少条数据
+     * @param nick 昵称
+     * @return
+     */
+    @GetMapping("page-user")
     public JsonResponse<PageResult<UserInfo>> pageListUserInfos(@RequestParam Integer no, @RequestParam Integer size, String nick) {
         Long userId = userSupport.getCurrentUserId();
         JSONObject params = new JSONObject();

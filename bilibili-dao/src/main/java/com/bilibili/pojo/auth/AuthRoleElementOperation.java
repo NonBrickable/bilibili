@@ -1,22 +1,21 @@
-package com.bilibili.pojo;
+package com.bilibili.pojo.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
-
 /**
- * 用户动态表
+ * 角色-元素操作关联表
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserMoments {
+public class AuthRoleElementOperation {
     private Long id;
-    private Long userId;
-    private String type;
-    private Long contentId;
+    private Long roleId;
+    private Long elementId;
     private Date createTime;
     private Date updateTime;
+    private AuthElementOperation authElementOperation;//联表，防止查询两次
 }

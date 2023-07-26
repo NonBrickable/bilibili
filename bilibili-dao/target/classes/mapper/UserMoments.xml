@@ -5,8 +5,9 @@
 
 <!-- mapper 为根元素节点， 一个namespace对应一个dao -->
 <mapper namespace="com.bilibili.dao.UserMomentsDao">
-    <insert id="addUserMoments" parameterType="com.bilibili.pojo.UserMoments">
-        insert into t_user_moments(id, user_id, type, content_id, create_time)
-        values (#{id}, #{userId}, #{type}, #{contentId}, now())
+    <insert id="addUserMoments" parameterType="com.bilibili.pojo.UserMoments" useGeneratedKeys="true" keyProperty="id">
+        insert into t_user_moments(user_id, type, content_id, create_time)
+        values (#{userId}, #{type}, #{contentId}, now())
     </insert>
+
 </mapper>

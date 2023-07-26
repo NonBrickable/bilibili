@@ -1,4 +1,4 @@
-package com.bilibili.pojo;
+package com.bilibili.pojo.auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,16 +7,20 @@ import lombok.NoArgsConstructor;
 import java.util.Date;
 
 /**
- * 用户动态表
+ * 角色-菜单关联表
  */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserMoments {
+public class AuthRoleMenu {
     private Long id;
-    private Long userId;
-    private String type;
-    private Long contentId;
+
+    private Long roleId;
+
+    private Long menuId;
+
     private Date createTime;
+
     private Date updateTime;
+    private AuthMenu authMenu;//冗余字段
 }

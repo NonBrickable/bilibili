@@ -6,6 +6,9 @@ import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
+/**
+ * 用户关注表
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

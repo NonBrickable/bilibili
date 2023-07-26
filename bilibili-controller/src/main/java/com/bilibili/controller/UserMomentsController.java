@@ -16,7 +16,12 @@ public class UserMomentsController {
     @Autowired
     private UserMomentsService userMomentsService;
 
-    //1.新增动态
+    /**
+     * 新增动态
+     * @param userMoments
+     * @return
+     * @throws Exception
+     */
     @PostMapping("/add-moment")
     public JsonResponse<String> addUserMoments(@RequestBody UserMoments userMoments) throws Exception {
         Long userId = userSupport.getCurrentUserId();
@@ -25,7 +30,10 @@ public class UserMomentsController {
         return new JsonResponse<>("新建动态成功");
     }
 
-    //2.获取动态
+    /**
+     * 获取动态
+     * @return
+     */
     @GetMapping("/user-subscribed-moments")
     public JsonResponse<List<UserMoments>> getUserSubscribedMoments(){
         long userId = userSupport.getCurrentUserId();

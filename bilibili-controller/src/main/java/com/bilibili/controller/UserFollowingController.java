@@ -20,7 +20,11 @@ public class UserFollowingController {
     @Autowired
     private FollowingGroupService followingGroupService;
 
-    //1.新增关注用户
+    /**
+     * 新增关注用户
+     * @param userFollowing
+     * @return
+     */
     @PostMapping("/add-following")
     public JsonResponse<String> addUserFollowings(@RequestBody UserFollowing userFollowing) {
         long userId = userSupport.getCurrentUserId();
@@ -30,7 +34,10 @@ public class UserFollowingController {
     }
 
 
-    //2.获取关注用户（按照分组）
+    /**
+     * 获取关注用户（按照分组）
+     * @return
+     */
     @GetMapping("/following-list")
     public JsonResponse<List<FollowingGroup>> getUserFollowings() {
         long userId = userSupport.getCurrentUserId();
@@ -38,7 +45,10 @@ public class UserFollowingController {
         return new JsonResponse<>(list);
     }
 
-    //3.获取粉丝列表
+    /**
+     * 获取粉丝列表
+     * @return
+     */
     @GetMapping("/fans-list")
     public JsonResponse<List<UserFollowing>> getUserFans() {
         long userId = userSupport.getCurrentUserId();
@@ -46,7 +56,11 @@ public class UserFollowingController {
         return new JsonResponse<>(list);
     }
 
-    //5.添加关注分组
+    /**
+     * 添加关注分组
+     * @param followingGroup
+     * @return
+     */
     @PostMapping("/add-following-group")
     public JsonResponse<Long> addUserFollowingGroup(@RequestBody FollowingGroup followingGroup) {
         Long userId = userSupport.getCurrentUserId();
@@ -55,7 +69,10 @@ public class UserFollowingController {
         return new JsonResponse<>(id);
     }
 
-    //6.获取关注分组
+    /**
+     * 获取关注分组
+     * @return
+     */
     @GetMapping("/following-group")
     public JsonResponse<List<FollowingGroup>> getFollowingGroupByUserId(){
         Long userId = userSupport.getCurrentUserId();

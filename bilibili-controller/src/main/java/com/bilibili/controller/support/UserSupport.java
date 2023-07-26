@@ -9,13 +9,14 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 @Component
 public class UserSupport {
 
-    //抓取前端请求，验证token并返回userId
+    /**
+     * 抓取前端请求，验证token并返回userId
+     * @return
+     */
     public long getCurrentUserId(){
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
         String token = requestAttributes.getRequest().getHeader("token");
-        System.out.println(token);
         long userId = TokenUtil.verifyToken(token);
-        System.out.println(userId);
         if(userId < 0){
             throw new ConditionException("非法用户");
         }
