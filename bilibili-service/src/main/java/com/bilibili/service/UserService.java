@@ -22,7 +22,11 @@ public class UserService {
     @Autowired
     private UserDao userDao;
 
-    //注册
+    /**
+     * 注册
+     * @param user
+     * @return
+     */
     public JsonResponse<String> addUser(User user) {
         String phone = user.getPhone();
         if (StringUtils.isNullOrEmpty(phone)) {

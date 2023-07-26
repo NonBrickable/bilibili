@@ -29,6 +29,5 @@ public class UserAuthService {
         List<AuthRoleMenu> authRoleMenuList = authRoleService.getAuthRoleMenus(roleIdList);
         UserAuthorities userAuthorities = new UserAuthorities(authRoleElementOperationList,authRoleMenuList);
         return userAuthorities;
-
     }
 }
