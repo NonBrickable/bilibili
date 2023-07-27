@@ -11,9 +11,18 @@ import java.util.Calendar;
 import java.util.Date;
 
 
-//获取用户令牌
+/**
+ * 获取令牌
+ */
 public class TokenUtil {
     private  static final  String ISSUER="签发者";
+
+    /**
+     * 生成accessToken
+     * @param userId
+     * @return
+     * @throws Exception
+     */
     public static String generateToken(Long userId) throws  Exception{
         Algorithm algorithm=Algorithm.RSA256(RSAUtil.getPublicKey(),RSAUtil.getPrivateKey());
         Calendar calender=Calendar.getInstance();//设置过期时间
@@ -24,7 +33,12 @@ public class TokenUtil {
                 .withExpiresAt(calender.getTime())
                 .sign(algorithm);
     }
-    //验证token
+
+    /**
+     * 验证令牌
+     * @param token
+     * @return
+     */
     public static Long verifyToken(String token) {
         try {
             Algorithm algorithm=Algorithm.RSA256(RSAUtil.getPublicKey(),RSAUtil.getPrivateKey());
@@ -39,6 +53,12 @@ public class TokenUtil {
         }
     }
 
+    /**
+     * 生成refreshToken
+     * @param userId
+     * @return
+     * @throws Exception
+     */
     public static String generateRefreshToken(Long userId) throws  Exception{
         Algorithm algorithm=Algorithm.RSA256(RSAUtil.getPublicKey(),RSAUtil.getPrivateKey());
         Calendar calender=Calendar.getInstance();//设置过期时间

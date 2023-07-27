@@ -21,6 +21,12 @@ public class UserAuthService {
 
     @Autowired
     private AuthRoleService authRoleService;
+
+    /**
+     * 获取用户的所有操作权限和菜单权限
+     * @param userId
+     * @return
+     */
     public UserAuthorities getUserAuthorities(long userId) {
         List<UserRole> userRoleList = userRoleService.getUserRole(userId);
         List<Long> roleIdList = userRoleList.stream().map(UserRole::getRoleId).collect(Collectors.toList());

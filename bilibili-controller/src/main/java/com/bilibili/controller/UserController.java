@@ -9,10 +9,13 @@ import com.bilibili.pojo.UserInfo;
 import com.bilibili.service.UserFollowingService;
 import com.bilibili.service.UserService;
 import com.bilibili.util.RSAUtil;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 public class UserController {
@@ -48,7 +51,7 @@ public class UserController {
     }
 
     /**
-     * 登录
+     * 单令牌登录
      * @param user
      * @return
      * @throws Exception
@@ -118,5 +121,43 @@ public class UserController {
             result.setList(userInfoList);
         }
             return new JsonResponse<>(result);
+    }
+
+    /**
+     * 双令牌登录
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("/user-dts")
+    public JsonResponse<Map<String,Object>> loginForDts(@RequestBody User user) throws Exception {
+        Map<String,Object> map = userService.loginForDts(user);
+        return new JsonResponse<>(map);
+    }
+
+    /**
+     * 登出
+     * @param request
+     * @return
+     */
+    @DeleteMapping("/logout")
+    public JsonResponse<String> logout(HttpServletRequest request){
+        String refreshToken = request.getHeader("refreshToken");
+        Long userId = userSupport.getCurrentUserId();
+        userService.logout(refreshToken,userId);
+        return JsonResponse.success();
+    }
+
+    /**
+     * 获取新的accessToken————流程：accessToken过期，前端调用生成该接口
+     * @param request
+     * @return
+     * @throws Exception
+     */
+    @PostMapping("new-access-token")
+    public JsonResponse<String> refreshAccessToken(HttpServletRequest request) throws Exception {
+        String refreshToken = request.getHeader("refreshToken");
+        String accessToken = userService.refreshAccessToken(refreshToken);
+        return new JsonResponse<>(accessToken);
     }
 }

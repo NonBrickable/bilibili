@@ -1,6 +1,7 @@
 package com.bilibili.dao;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bilibili.pojo.FreshTokenDetail;
 import com.bilibili.pojo.User;
 import com.bilibili.pojo.UserFollowing;
 import com.bilibili.pojo.UserInfo;
@@ -31,4 +32,12 @@ public interface UserDao {
     Integer pageCountUserInfos(Map<String, Object> params);
 
     List<UserInfo> pageListUserInfos(Map<String, Object> params);
+
+    Integer deleteRefreshToken(@Param("refreshToken") String refreshToken, @Param("userId") Long userId);
+
+    Integer addRefreshToken(@Param("refreshToken") String refreshToken, @Param("userId") Long userId);
+
+
+    FreshTokenDetail getFreshTokenDetail(@Param("refreshToken") String refreshToken);
 }
+

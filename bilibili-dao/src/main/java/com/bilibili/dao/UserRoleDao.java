@@ -11,5 +11,5 @@ public interface UserRoleDao {
 
     List<UserRole> getUserRole(@Param("userId") Long userId);
 
-
+    Integer setDefaultRole(UserRole userRole);
 }

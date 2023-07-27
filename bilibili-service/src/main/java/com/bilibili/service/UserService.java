@@ -21,9 +21,12 @@ public class UserService {
 
     @Autowired
     private UserDao userDao;
+    @Autowired
+    private UserRoleService userRoleService;
 
     /**
      * 注册
+     *
      * @param user
      * @return
      */
@@ -57,6 +60,7 @@ public class UserService {
         userInfo.setGender(UserConstant.GENDER_MALE);
         userInfo.setBirth(UserConstant.DEFAULT_BIRTH);
         userDao.addUserInfo(userInfo);
+        userRoleService.setDefaultRole(user.getId());
         return JsonResponse.success("成功");
     }
 
@@ -65,7 +69,13 @@ public class UserService {
     }
 
 
-    //登录
+    /**
+     * 登录
+     *
+     * @param user
+     * @return
+     * @throws Exception
+     */
     public String login(User user) throws Exception {
         String phone = user.getPhone();
         if (StringUtils.isNullOrEmpty(phone)) {
@@ -75,7 +85,7 @@ public class UserService {
         if (dbuser == null) {
             throw new ConditionException("该用户未注册");
         }
-        String password = user.getPassword();
+        String password = user.getPassword();//获取前端传过来的密码
         String rawpassword;
         try {
             rawpassword = RSAUtil.decrypt(password);
@@ -84,7 +94,7 @@ public class UserService {
         }
         String salt = dbuser.getSalt();
         String md5password = MD5Util.sign(rawpassword, salt, "UTF-8");
-        if (md5password.equals(password)) {
+        if (!md5password.equals(dbuser.getPassword())) {
             throw new ConditionException("密码错误");
         }
         return TokenUtil.generateToken(dbuser.getId());
@@ -139,5 +149,68 @@ public class UserService {
             list = userDao.pageListUserInfos(params);
         }
         return new PageResult<>(total, list);
+    }
+
+    /**
+     * 双令牌登录
+     * @param user
+     * @return
+     * @throws Exception
+     */
+    public Map<String, Object> loginForDts(User user) throws Exception {
+        String phone = user.getPhone();
+        if (StringUtils.isNullOrEmpty(phone)) {
+            throw new ConditionException("手机号不能为空");
+        }
+        User dbuser = this.getUserByphone(phone);
+        if (dbuser == null) {
+            throw new ConditionException("该用户未注册");
+        }
+        String password = user.getPassword();//获取前端传过来的密码
+        String rawpassword;
+        try {
+            rawpassword = RSAUtil.decrypt(password);
+        } catch (Exception e) {
+            throw new ConditionException("密码解密失败");
+        }
+        String salt = dbuser.getSalt();
+        String md5password = MD5Util.sign(rawpassword, salt, "UTF-8");
+        if (!md5password.equals(dbuser.getPassword())) {
+            throw new ConditionException("密码错误");
+        }
+        Long userId = dbuser.getId();
+        String accessToken = TokenUtil.generateToken(userId);
+        String refreshToken = TokenUtil.generateRefreshToken(userId);
+        //保存refreshToken到数据库
+        userDao.deleteRefreshToken(refreshToken,userId);
+        userDao.addRefreshToken(refreshToken,userId);
+        Map<String, Object> map = new HashMap<>();
+        map.put("accessToken", accessToken);
+        map.put("refreshToken", refreshToken);
+        return map;
+    }
+
+    /**
+     * 登出
+     * @param refreshToken
+     * @param userId
+     */
+    public void logout(String refreshToken, Long userId) {
+        userDao.deleteRefreshToken(refreshToken,userId);
+    }
+
+    /**
+     * 刷新accessToken
+     * @param refreshToken
+     * @return
+     */
+    public String refreshAccessToken(String refreshToken) throws Exception {
+        FreshTokenDetail freshTokenDetail = userDao.getFreshTokenDetail(refreshToken);
+        if(freshTokenDetail == null){
+            throw new ConditionException("555","token过期");
+        }
+        Long userId = freshTokenDetail.getUserId();
+        String accessToken = TokenUtil.generateToken(userId);
+        return accessToken;
     }
 }

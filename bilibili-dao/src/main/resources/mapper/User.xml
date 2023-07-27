@@ -18,7 +18,7 @@
     </insert>
 
     <insert id="addUserInfo" parameterType="com.bilibili.pojo.UserInfo">
-        insert into t_user_info(userId, nick, avatar, sign, gender, birth, create_time)
+        insert into t_user_info(user_id, nick, avatar, sign, gender, birth, create_time)
         values (#{userId}, #{nick}, #{avatar}, #{sign}, #{gender}, #{birth}, now())
     </insert>
 
@@ -85,9 +85,9 @@
         select count(1)
         from t_user_info
         where 1 = 1
-            <if test="nick!= null and nick!=''">
-                and nick like %${nick}%
-            </if>
+        <if test="nick!= null and nick!=''">
+            and nick like %${nick}%
+        </if>
     </select>
     <select id="pageListUserInfos" parameterType="map" resultType="com.bilibili.pojo.UserInfo">
         select *
@@ -98,5 +98,20 @@
         </if>
         order by id desc
         limit #{start},#{limit}
+    </select>
+    <delete id="deleteRefreshToken">
+        delete
+        from t_refresh_token
+        where refresh_token = #{refreshToken}
+          and user_id = #{userId}
+    </delete>
+    <insert id="addRefreshToken">
+        insert into t_refresh_token(refresh_token, user_id, create_time)
+        values (#{refreshToken}, #{userId}, now())
+    </insert>
+    <select id="getFreshTokenDetail" parameterType="string" resultType="com.bilibili.pojo.FreshTokenDetail">
+        select *
+        from t_refresh_token
+        where refresh_token = #{refreshToken}
     </select>
 </mapper>
