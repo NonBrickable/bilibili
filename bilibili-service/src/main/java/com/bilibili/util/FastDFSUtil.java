@@ -11,8 +11,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -27,15 +26,14 @@ public class FastDFSUtil {
     private FastFileStorageClient fastFileStorageClient;
     @Autowired
     private AppendFileStorageClient appendFileStorageClient;
+    @Autowired
+    private RedisTemplate<String, String> redisTemplate;
 
     private static final String DEFAULT_GROUP = "group1";
     private static final String UPLOADED_SIZE_KEY = "uploaded-size-key";
     private static final String UPLOADED_NO_KEY = "uploaded-size-key";
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
-
     private static final String PATH_KEY = "path-key:";
-
+    private static final int SLICE_SIZE = 1024 * 1024 * 2;
 
     //获取文件类型
     public String getFileType(MultipartFile file) {
@@ -117,7 +115,7 @@ public class FastDFSUtil {
         //判断全部上传，如果全部上传，则清空redis里所有的key和value
         String uploadedNoStr = redisTemplate.opsForValue().get(uploadedNoKey);
         String resultPath = "";
-        if(Integer.valueOf(uploadedNoStr) == totalSliceNo){
+        if (Integer.valueOf(uploadedNoStr) == totalSliceNo) {
             resultPath = redisTemplate.opsForValue().get(pathKey);
             List<String> list = new ArrayList<>();
             list.add(pathKey);
@@ -127,6 +125,44 @@ public class FastDFSUtil {
             return resultPath;
         }
         return resultPath;
+    }
+
+    /**
+     * 文件分片
+     *
+     * @param multipartFile
+     * @throws Exception
+     */
+    public void convertFileToSlices(MultipartFile multipartFile) throws Exception {
+        String fileType = this.getFileType(multipartFile);
+        //生成临时文件，将MultipartFile转为File
+        File file = this.multipartFileToFile(multipartFile);
+        long fileLength = file.length();
+        int count = 1;
+        // 开始切片
+        for (int i = 0; i < fileLength; i += SLICE_SIZE) {
+            RandomAccessFile randomAccessFile = new RandomAccessFile(file, "r");
+            randomAccessFile.seek(i);
+            byte[] bytes = new byte[SLICE_SIZE];
+            int len = randomAccessFile.read(bytes);
+            String path = "D:/app-files/IdeaTest/" + count + "." + fileType;
+            File slice = new File(path);
+            FileOutputStream fos = new FileOutputStream(slice);
+            fos.write(bytes, 0, len);
+            fos.close();
+            randomAccessFile.close();
+            count++;
+        }
+        //删除临时文件
+        file.delete();
+    }
+
+    public File multipartFileToFile(MultipartFile multipartFile) throws Exception {
+        String originalFileName = multipartFile.getOriginalFilename();
+        String[] fileName = originalFileName.split("\\.");
+        File file = File.createTempFile(fileName[0], "." + fileName[1]);
+        multipartFile.transferTo(file);
+        return file;
     }
 
 
