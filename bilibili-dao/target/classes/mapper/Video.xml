@@ -42,30 +42,4 @@
         order by id desc
         limit #{start},#{limit}
     </select>
-    <select id="getVideoById" parameterType="long" resultType="com.bilibili.pojo.Video">
-        select *
-        from t_video
-        where id = #{videoId}
-    </select>
-    <select id="getVideoLikeByVideoIdAndUserId" resultType="com.bilibili.pojo.VideoLike">
-        select *
-        from t_video_like
-        where video_id = #{videoId}
-          and user_id = #{userId}
-    </select>
-    <insert id="addVideoLike">
-        insert into t_video_like(user_id, video_id, create_time)
-        values (#{userId}, #{videoId}, now())
-    </insert>
-    <delete id="deleteVideoLike">
-        delete
-        from t_video_like
-        where user_id = #{userId}
-          and video_id = #{videoId}
-    </delete>
-    <select id="getVideoLikes" parameterType="long" resultType="long">
-        select count(1)
-        from t_video_like
-        where video_id = #{videoId}
-    </select>
 </mapper>

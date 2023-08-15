@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -21,4 +22,5 @@ public class Video {
     private String description;
     private Date createTime;
     private Date updateTime;
+    private List<VideoTag> videoTagList;//冗余，存放标签类型
 }

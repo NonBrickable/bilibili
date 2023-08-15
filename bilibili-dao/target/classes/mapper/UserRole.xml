@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 为根元素节点， 一个namespace对应一个dao -->
+<mapper namespace="com.bilibili.dao.UserRoleDao">
+    <select id="getUserRole" parameterType="long" resultType="com.bilibili.pojo.auth.UserRole">
+        select ur.*, ar.name roleName, ar.code roleCode
+        from t_user_role ur
+                 left join t_auth_role ar on ur.role_id = ar.id
+        where user_id = #{userId}
+    </select>
+    <insert id="setDefaultRole" parameterType="com.bilibili.pojo.auth.UserRole">
+        insert into t_user_role(user_id, role_id, create_time)
+        values (#{userId}, #{roleId}, now())
+    </insert>
+</mapper>

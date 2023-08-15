@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 为根元素节点， 一个namespace对应一个dao -->
+<mapper namespace="com.bilibili.dao.FileDao">
+    <insert id="addFile" parameterType="com.bilibili.pojo.File">
+        insert into t_file(url, type, md5, create_time)
+        values (#{url}, #{type}, #{md5}, now())
+    </insert>
+    <select id="getFileByMD5" parameterType="string" resultType="com.bilibili.pojo.File">
+        select *
+        from t_file
+        where md5 = #{md5}
+    </select>
+</mapper>

@@ -1,21 +1,22 @@
 package com.bilibili.util;
 
 import com.bilibili.exception.ConditionException;
+import com.github.tobato.fastdfs.domain.fdfs.FileInfo;
 import com.github.tobato.fastdfs.domain.fdfs.MetaData;
 import com.github.tobato.fastdfs.domain.fdfs.StorePath;
 import com.github.tobato.fastdfs.service.AppendFileStorageClient;
 import com.github.tobato.fastdfs.service.FastFileStorageClient;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 /**
  * FastDFS工具类
@@ -170,4 +171,44 @@ public class FastDFSUtil {
     public void deleteFile(String filePath) {
         fastFileStorageClient.deleteFile(filePath);
     }
+
+    @Value("${fdfs.http.storage-addr}")
+    private String httpFdfsStorageAddr;
+    public void viewVideosOnlineBySlices(HttpServletRequest request,
+                                         HttpServletResponse response,
+                                         String path) throws Exception {
+        //在文件服务器中查询文件信息（分组+相对路径）
+        FileInfo fileInfo = fastFileStorageClient.queryFileInfo(DEFAULT_GROUP, path);
+        long totalFileSize = fileInfo.getFileSize();
+        String url = httpFdfsStorageAddr + path;
+        Enumeration<String> headerNames = request.getHeaderNames();
+        Map<String,Object> headers = new HashMap<>();
+        while(headerNames.hasMoreElements()){
+            String header = headerNames.nextElement();
+            headers.put(header,request.getHeader(header));
+        }
+        String rangeStr = request.getHeader("Range");
+        String[] range;
+        if(StringUtil.isNullOrEmpty(rangeStr)){
+            rangeStr = "byte=0-" + (totalFileSize - 1);
+        }
+        range = rangeStr.split("byte=|-");
+        Long begin = 0L;
+        if(range.length >= 2){
+            begin = Long.valueOf(range[1]);
+        }
+        Long end = 0L;
+        if(range.length >= 3){
+            end = Long.valueOf(range[2]);
+        }
+        long len = end - begin + 1;
+        String contentRange = "bytes "+ begin + "-" + end + "/" + totalFileSize;
+        response.setHeader("Content-Range",contentRange);
+        response.setHeader("Accept-Ranges","bytes");
+        response.setHeader("Content-Type","video/mp4");
+        response.setContentLength((int)len);
+        response.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+        HttpUtil.get(url,headers,response);
+    }
+
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 为根元素节点， 一个namespace对应一个dao -->
+<mapper namespace="com.bilibili.dao.AuthRoleDao">
+    <select id="getIdByRoleCode" parameterType="string" resultType="long">
+        select id
+        from t_auth_role
+        where code = #{roleCode}
+    </select>
+</mapper>
