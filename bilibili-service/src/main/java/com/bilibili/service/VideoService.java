@@ -4,6 +4,7 @@ import com.bilibili.common.PageResult;
 import com.bilibili.dao.VideoDao;
 import com.bilibili.exception.ConditionException;
 import com.bilibili.pojo.Video;
+import com.bilibili.pojo.VideoCollection;
 import com.bilibili.pojo.VideoLike;
 import com.bilibili.pojo.VideoTag;
 import com.bilibili.util.FastDFSUtil;
@@ -89,11 +90,35 @@ public class VideoService {
         return result;
     }
 
-    public void addVideoCollection(Long videoId, Long userId) {
+    public void addVideoCollection(VideoCollection videoCollection) {
+        Long videoId = videoCollection.getVideoId();
+        Long groupId = videoCollection.getGroupId();
+        if (videoId == null || groupId == null) {
+            throw new ConditionException("参数异常");
+        }
         Video video = videoDao.getVideoById(videoId);
-        if(video == null){
+        if (video == null) {
             throw new ConditionException("视频非法");
         }
-        VideoCollection videoCollection = videoDao.getVideoCollectionByVideoIdAndUserId(videoId,userId);
+        videoDao.deleteVideoCollection(videoId, videoCollection.getUserId());
+        videoDao.addVideoCollection(videoCollection);
     }
+
+    public void deleteVideoCollection(Long videoId, Long userId) {
+        videoDao.deleteVideoCollection(videoId,userId);
+    }
+    public Map<String, Object> getVideoCollections(Long videoId, Long userId) {
+        Long count = videoDao.getVideoCollections(videoId);
+        boolean collect = false;
+        VideoCollection videoCollection = videoDao.getVideoCollectionByVideoIdAndUserId(videoId,userId);
+        if(videoCollection != null){
+            collect = true;
+        }
+        Map<String,Object> result = new HashMap<>();
+        result.put("count",count);
+        result.put("collect",collect);
+        return result;
+    }
+
+
 }

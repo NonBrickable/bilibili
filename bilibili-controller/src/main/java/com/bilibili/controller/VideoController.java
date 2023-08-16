@@ -4,6 +4,7 @@ import com.bilibili.common.JsonResponse;
 import com.bilibili.common.PageResult;
 import com.bilibili.controller.support.UserSupport;
 import com.bilibili.pojo.Video;
+import com.bilibili.pojo.VideoCollection;
 import com.bilibili.service.VideoService;
 import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -92,10 +93,38 @@ public class VideoController {
         Map<String,Object> result = videoService.getVideoLikes(userId,videoId);
         return new JsonResponse<>(result);
     }
+
+    /**
+     * 收藏视频
+     * @param videoCollection
+     * @return
+     */
     @PostMapping("/video-collection")
-    public JsonResponse<String> addVideoCollection(@RequestParam Long videoId){
+    public JsonResponse<String> addVideoCollection(@RequestBody VideoCollection videoCollection){
         Long userId = userSupport.getCurrentUserId();
-        videoService.addVideoCollection(videoId,userId);
+        videoCollection.setUserId(userId);
+        videoService.addVideoCollection(videoCollection);
         return JsonResponse.success();
+    }
+
+    @DeleteMapping("/video-collection-del")
+    public JsonResponse<String> deleteVideoCollection(@RequestParam Long videoId){
+        Long userId = userSupport.getCurrentUserId();
+        videoService.deleteVideoCollection(videoId,userId);
+        return JsonResponse.success();
+    }
+    /**
+     * 查看视频收藏数量
+     * @param videoId
+     * @return
+     */
+    @GetMapping("/video-collection-count")
+    public JsonResponse<Map<String,Object>> getVideoCollections(@RequestParam Long videoId){
+        Long userId = null;
+        try{
+            userSupport.getCurrentUserId();
+        }catch (Exception e){}
+        Map<String,Object> result = videoService.getVideoCollections(videoId,userId);
+        return new JsonResponse<>(result);
     }
 }

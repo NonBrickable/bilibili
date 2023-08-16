@@ -1,6 +1,7 @@
 package com.bilibili.dao;
 
 import com.bilibili.pojo.Video;
+import com.bilibili.pojo.VideoCollection;
 import com.bilibili.pojo.VideoLike;
 import com.bilibili.pojo.VideoTag;
 import org.apache.ibatis.annotations.Mapper;
@@ -26,4 +27,12 @@ public interface VideoDao {
     void deleteVideoLike(@Param("videoId") Long videoId, @Param("userId") long userId);
 
     Long getVideoLikes(@Param("videoId") Long videoId);
+
+    void deleteVideoCollection(@Param("videoId") Long videoId, @Param("userId") Long userId);
+
+    void addVideoCollection(VideoCollection videoCollection);
+
+    Long getVideoCollections(@Param("videoId") Long videoId);
+
+    VideoCollection getVideoCollectionByVideoIdAndUserId(Long videoId, Long userId);
 }
