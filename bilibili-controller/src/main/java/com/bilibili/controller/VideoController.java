@@ -4,16 +4,18 @@ import com.bilibili.common.JsonResponse;
 import com.bilibili.common.PageResult;
 import com.bilibili.controller.support.UserSupport;
 import com.bilibili.pojo.Video;
+import com.bilibili.pojo.VideoCoin;
 import com.bilibili.pojo.VideoCollection;
 import com.bilibili.service.VideoService;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.batch.BatchProperties;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Collection;
+import java.util.LinkedList;
 import java.util.Map;
+import java.util.Queue;
 
 @RestController
 public class VideoController {
@@ -86,7 +88,7 @@ public class VideoController {
      */
     @GetMapping("/video-like-count")
     public JsonResponse<Map<String,Object>> getVideoLikes(@RequestParam Long videoId){
-        Long userId = null;
+        Long userId = -1L;
         try{
             userId = userSupport.getCurrentUserId();
         }catch(Exception e){}
@@ -107,6 +109,11 @@ public class VideoController {
         return JsonResponse.success();
     }
 
+    /**
+     * 取消收藏视频
+     * @param videoId
+     * @return
+     */
     @DeleteMapping("/video-collection-del")
     public JsonResponse<String> deleteVideoCollection(@RequestParam Long videoId){
         Long userId = userSupport.getCurrentUserId();
@@ -120,11 +127,40 @@ public class VideoController {
      */
     @GetMapping("/video-collection-count")
     public JsonResponse<Map<String,Object>> getVideoCollections(@RequestParam Long videoId){
-        Long userId = null;
+        Long userId = -1L;
         try{
-            userSupport.getCurrentUserId();
+            userId = userSupport.getCurrentUserId();
         }catch (Exception e){}
         Map<String,Object> result = videoService.getVideoCollections(videoId,userId);
         return new JsonResponse<>(result);
     }
+
+    /**
+     * 视频投币
+     * @param videoCoin
+     * @return
+     */
+    @PostMapping("/video-coins")
+    public JsonResponse<String> addVideoCoins(@RequestBody VideoCoin videoCoin){
+        Long userId = userSupport.getCurrentUserId();
+        videoCoin.setUserId(userId);
+        videoService.addVideoCoins(videoCoin);
+        return JsonResponse.success();
+    }
+
+    /**
+     * 查看视频投币数量
+     * @param videoId
+     * @return
+     */
+    @GetMapping("/video-coins-count")
+    public JsonResponse<Map<String,Object>> getVideoCoins(@RequestParam Long videoId){
+        Long userId = -1L;
+        try{
+            userId = userSupport.getCurrentUserId();
+        }catch(Exception e){}
+        Map<String,Object> result = videoService.getVideoCoins(videoId,userId);
+        return new JsonResponse<>(result);
+    }
+    Collection
 }

@@ -3,10 +3,7 @@ package com.bilibili.service;
 import com.bilibili.common.PageResult;
 import com.bilibili.dao.VideoDao;
 import com.bilibili.exception.ConditionException;
-import com.bilibili.pojo.Video;
-import com.bilibili.pojo.VideoCollection;
-import com.bilibili.pojo.VideoLike;
-import com.bilibili.pojo.VideoTag;
+import com.bilibili.pojo.*;
 import com.bilibili.util.FastDFSUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,10 +20,10 @@ import java.util.Map;
 public class VideoService {
     @Autowired
     private VideoDao videoDao;
-
     @Autowired
     private FastDFSUtil fastDFSUtil;
-
+    @Autowired
+    private UserCoinService userCoinService;
     @Transactional
     public void addVideos(Video video) {
         videoDao.addVideos(video);
@@ -120,5 +117,49 @@ public class VideoService {
         return result;
     }
 
+    //1.参数合法性：null以及存在   2.硬币数够不够
+    public void addVideoCoins(VideoCoin videoCoin){
+        Long videoId = videoCoin.getVideoId();
+        if(videoId == null){
+            throw new ConditionException("参数错误");
+        }
+        Video video = videoDao.getVideoById(videoId);
+        if(video == null){
+            throw new ConditionException("视频不存在");
+        }
+        //获取用户有多少硬币
+        Long userCoinsAmount = userCoinService.getUserCoinsAmount(videoCoin.getUserId());
+        //判断是否为null
+        userCoinsAmount = userCoinsAmount == null ? 0:userCoinsAmount;
+        Integer videoCoinAmount = videoCoin.getAmount();
+        if(userCoinsAmount < videoCoinAmount){
+            throw new ConditionException("硬币数量不足");
+        }
+        //查询当前登录用户已经对该视频投了多少币
+        VideoCoin dbvideoCoin = videoDao.getVideoCoinByVideoIdAndUserId(videoId,videoCoin.getUserId());
+        //更改t_video_coin表
+        if(dbvideoCoin == null){
+            videoDao.addVideoCoins(videoCoin);
+        }else {
+            Integer dbAmount = dbvideoCoin.getAmount();
+            dbAmount += videoCoinAmount;
+            videoCoin.setAmount(dbAmount);
+            videoDao.updateVideoCoin(videoCoin);
+        }
+        //更改t_user_coin表
+        userCoinService.updateUserCoinsAmount(videoCoin.getUserId(),(userCoinsAmount - videoCoinAmount));
+    }
 
+    public Map<String, Object> getVideoCoins(Long videoId, Long userId) {
+        Long amount = videoDao.getVideoCoins(videoId);
+        boolean coin = false;
+        VideoCoin videoCoin = videoDao.getVideoCoinByVideoIdAndUserId(videoId,userId);
+        if(videoCoin != null){
+            coin = true;
+        }
+        Map<String,Object> result = new HashMap<>();
+        result.put("coin",coin);
+        result.put("amount",amount);
+        return result;
+    }
 }

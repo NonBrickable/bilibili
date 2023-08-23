@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 为根元素节点， 一个namespace对应一个dao -->
+<mapper namespace="com.bilibili.dao.UserCoinDao">
+    <select id="getUserCoinsAmount" parameterType="long" resultType="long">
+        select amount
+        from t_user_coin
+        where user_id = #{userId}
+    </select>
+    <update id="updateUserCoinsAmount">
+        update t_user_coin
+        set amount = #{userCoinsAmount}
+        where user_id = #{userId}
+    </update>
+</mapper>

@@ -42,4 +42,79 @@
         order by id desc
         limit #{start},#{limit}
     </select>
+    <select id="getVideoById" parameterType="long" resultType="com.bilibili.pojo.Video">
+        select *
+        from t_video
+        where id = #{videoId}
+    </select>
+    <select id="getVideoLikeByVideoIdAndUserId" resultType="com.bilibili.pojo.VideoLike">
+        select *
+        from t_video_like
+        <where>
+            <if test="videoId != null and videoId != ''">
+                video_id = #{videoId}
+            </if>
+            <if test="userId != null and userId != ''">
+                and user_id = #{userId}
+            </if>
+        </where>
+    </select>
+    <insert id="addVideoLike">
+        insert into t_video_like(user_id, video_id, create_time)
+        values (#{userId}, #{videoId}, now())
+    </insert>
+    <delete id="deleteVideoLike">
+        delete
+        from t_video_like
+        where user_id = #{userId}
+          and video_id = #{videoId}
+    </delete>
+    <select id="getVideoLikes" parameterType="long" resultType="long">
+        select count(1)
+        from t_video_like
+        where video_id = #{videoId}
+    </select>
+    <delete id="deleteVideoCollection">
+        delete
+        from t_video_collection
+        where video_id = #{videoId}
+          and user_id = #{userId};
+    </delete>
+    <insert id="addVideoCollection">
+        insert into t_video_collection(video_id, user_id, group_id, create_time)
+        values (#{videoId}, #{userId}, #{groupId}, now())
+    </insert>
+    <select id="getVideoCollections" parameterType="long" resultType="long">
+        select count(1)
+        from t_video_collection
+        where video_id = #{videoId}
+    </select>
+    <select id="getVideoCollectionByVideoIdAndUserId" resultType="com.bilibili.pojo.VideoCollection">
+        select *
+        from t_video_collection
+        where video_id = #{videoId}
+          and user_id = #{userId}
+    </select>
+    <select id="getVideoCoinByVideoIdAndUserId" resultType="com.bilibili.pojo.VideoCoin">
+        select *
+        from t_video_coin
+        where user_id = #{userId}
+          and video_id = #{videoId}
+    </select>
+    <insert id="addVideoCoins" parameterType="com.bilibili.pojo.VideoCoin">
+        insert into t_video_coin (user_id,video_id,amount,create_time)
+        values (#{userId},#{videoId},#{amount},now())
+    </insert>
+    <update id="updateVideoCoin" parameterType="com.bilibili.pojo.VideoCoin">
+        update t_video_coin
+        set amount      = #{amount},
+            update_time = now()
+        where user_id = #{userId}
+          and video_id = #{videoId}
+    </update>
+    <select id="getVideoCoins" parameterType="long" resultType="long">
+        select sum(amount)
+        from t_video_coin
+        where video_id = #{videoId}
+    </select>
 </mapper>
