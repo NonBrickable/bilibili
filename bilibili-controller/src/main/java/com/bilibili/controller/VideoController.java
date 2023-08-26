@@ -195,4 +195,9 @@ public class VideoController {
         PageResult<VideoComment> result = videoService.pageListVideoComments(size, no, videoId);
         return new JsonResponse<>(result);
     }
+    @GetMapping("/video-details")
+    public JsonResponse<Map<String,Object>> getVideoDetails(@RequestParam Long videoId){
+        Map<String,Object> result = videoService.getVideoDetails(videoId);
+        return new JsonResponse<>(result);
+    }
 }

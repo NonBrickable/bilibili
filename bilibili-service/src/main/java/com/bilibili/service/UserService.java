@@ -100,10 +100,14 @@ public class UserService {
         return TokenUtil.generateToken(dbuser.getId());
     }
 
-    //获取用户信息
-    public User getUserInfo(Long userid) {
-        User user = userDao.getUserById(userid);
-        UserInfo userInfo = userDao.getUserInfoById(userid);
+    /**
+     * 获取用户信息
+     * @param userId 用户id
+     * @return
+     */
+    public User getUserInfo(Long userId) {
+        User user = userDao.getUserById(userId);
+        UserInfo userInfo = userDao.getUserInfoById(userId);
         user.setUserInfo(userInfo);
         return user;
     }

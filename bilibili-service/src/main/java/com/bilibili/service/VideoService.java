@@ -221,4 +221,23 @@ public class VideoService {
         }
         return new PageResult<>(total, list);
     }
+
+    /**
+     * 获取视频详情
+     * @param videoId
+     * @return
+     */
+    public Map<String, Object> getVideoDetails(Long videoId) {
+        Video video = videoDao.getVideoById(videoId);
+        if(video == null){
+            throw new ConditionException("参数错误");
+        }
+        Long userId = video.getUserId();
+        User user = userService.getUserInfo(userId);
+        UserInfo userInfo = user.getUserInfo();
+        Map<String,Object> result = new HashMap<>();
+        result.put("userInfo",userInfo);
+        result.put("video",video);
+        return result;
+    }
 }
