@@ -114,4 +114,12 @@
         from t_refresh_token
         where refresh_token = #{refreshToken}
     </select>
+    <select id="batchGetUserInfo" parameterType="java.util.Set" resultType="com.bilibili.pojo.UserInfo">
+        select *
+        from t_user_info
+        where user_id in
+        <foreach collection="userIdList" open="(" close=")" separator="," item="userId">
+            #{userId}
+        </foreach>
+    </select>
 </mapper>

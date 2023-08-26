@@ -117,4 +117,30 @@
         from t_video_coin
         where video_id = #{videoId}
     </select>
+    <insert id="addVideoComment">
+        insert into t_video_comment(video_id, user_id, comment, reply_user_id, root_id, create_time)
+        values (#{videoId}, #{userId}, #{comment}, #{replyUserId}, #{rootId}, now())
+    </insert>
+    <select id="pageCountVideoComment" parameterType="int" resultType="int">
+        select count(*)
+        from t_video_comment
+        where video_id = #{videoId}
+          and root_id is null
+    </select>
+    <select id="pageListVideoComments" parameterType="map" resultType="com.bilibili.pojo.VideoComment">
+        select *
+        from t_video_comment
+        where video_id = #{videoId}
+          and root_id is null
+        order by id desc
+            limit #{start}, #{limit}
+    </select>
+    <select id="batchGetChildVideoComments" parameterType="list" resultType="com.bilibili.pojo.VideoComment">
+        select *
+        from t_video_comment
+        where root_id in
+        <foreach collection="rootIdList" open="(" close=")" separator="," item="rootId">
+            #{rootId}
+        </foreach>
+    </select>
 </mapper>

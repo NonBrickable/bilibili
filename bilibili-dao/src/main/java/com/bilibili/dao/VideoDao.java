@@ -10,16 +10,18 @@ import java.util.Map;
 @Mapper
 public interface VideoDao {
     Integer addVideos(Video video);
+
     Integer batchAddVideoTags(List<VideoTag> videoTagList);
 
     Integer pageCountVideos(Map<String, Object> params);
+
     List<Video> pageListVideos(Map<String, Object> params);
 
     Video getVideoById(Long videoId);
 
     VideoLike getVideoLikeByVideoIdAndUserId(@Param("videoId") Long videoId, @Param("userId") long userId);
 
-    void addVideoLike(@Param("videoId") Long videoId, @Param("userId")long userId);
+    void addVideoLike(@Param("videoId") Long videoId, @Param("userId") long userId);
 
     void deleteVideoLike(@Param("videoId") Long videoId, @Param("userId") long userId);
 
@@ -40,4 +42,12 @@ public interface VideoDao {
     void updateVideoCoin(VideoCoin videoCoin);
 
     Long getVideoCoins(@Param("videoId") Long videoId);
+
+    void addVideoComment(VideoComment videoComment);
+
+    Integer pageCountVideoComment(@Param("videoId") Long videoId);
+
+    List<VideoComment> pageListVideoComments(Map<String, Object> params);
+
+    List<VideoComment> batchGetChildVideoComments(List<Long> rootIdList);
 }

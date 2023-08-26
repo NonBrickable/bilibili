@@ -39,5 +39,7 @@ public interface UserDao {
 
 
     FreshTokenDetail getFreshTokenDetail(@Param("refreshToken") String refreshToken);
+
+    List<UserInfo> batchGetUserInfo(Set<Long> userIdList);
 }
 
