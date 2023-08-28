@@ -188,6 +188,13 @@ public class VideoController {
         return JsonResponse.success();
     }
 
+    /**
+     * 分页查看评论
+     * @param size
+     * @param no
+     * @param videoId
+     * @return
+     */
     @GetMapping("/video-comments-page")
     public JsonResponse<PageResult<VideoComment>> pageListVideoComments(@RequestParam Integer size,
                                                                         @RequestParam Integer no,
@@ -195,6 +202,12 @@ public class VideoController {
         PageResult<VideoComment> result = videoService.pageListVideoComments(size, no, videoId);
         return new JsonResponse<>(result);
     }
+
+    /**
+     * 视频详情
+     * @param videoId
+     * @return
+     */
     @GetMapping("/video-details")
     public JsonResponse<Map<String,Object>> getVideoDetails(@RequestParam Long videoId){
         Map<String,Object> result = videoService.getVideoDetails(videoId);
