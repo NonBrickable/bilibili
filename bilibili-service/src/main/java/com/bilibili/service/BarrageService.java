@@ -7,31 +7,66 @@ import com.bilibili.pojo.Barrage;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class BarrageService {
     @Autowired
     private BarrageDao barrageDao;
     @Autowired
-    private RedisTemplate<String,String> redisTemplate;
-    public void addBarrage(Barrage barrage){
+    private RedisTemplate<String, String> redisTemplate;
+
+    public void addBarrage(Barrage barrage) {
         barrageDao.addBarrage(barrage);
     }
-    public List<Barrage> getBarrages(Map<String,Object> params){
-        return barrageDao.getBarrages(params);
+
+    @Async
+    public void asyncAddBarrage(Barrage barrage) {
+        barrageDao.addBarrage(barrage);
     }
-    public void addBarrageToRedis(Barrage barrage){
+
+    public List<Barrage> getBarrages(Long videoId, String startTime, String endTime) throws Exception {
+        String key = "barrage-video-" + videoId;
+        String value = redisTemplate.opsForValue().get(key);
+        List<Barrage> list;
+        if (!StringUtil.isNullOrEmpty(value)) {
+            list = JSONArray.parseArray(value, Barrage.class);
+            if (!StringUtil.isNullOrEmpty(startTime) && !StringUtil.isNullOrEmpty(endTime)) {
+                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Date startDate = sdf.parse(startTime);
+                Date endDate = sdf.parse(endTime);
+                List<Barrage> result = new ArrayList<>();
+                for (Barrage bar : list) {
+                    Date createTime = bar.getCreateTime();
+                    if (createTime.after(startDate) && createTime.before(endDate)) {
+                        result.add(bar);
+                    }
+                }
+                list = result;
+            }
+        } else {
+            Map<String, Object> params = new HashMap<>();
+            params.put("videoId", videoId);
+            params.put("startTime", startTime);
+            params.put("endTime", endTime);
+            list = barrageDao.getBarrages(params);
+            redisTemplate.opsForValue().set(key, JSONObject.toJSONString(list));
+        }
+        return list;
+    }
+
+    public void addBarrageToRedis(Barrage barrage) {
         String key = "barrage-video-" + barrage.getVideoId();
         //获取redis里关于某视频的所有弹幕
         String value = redisTemplate.opsForValue().get(key);
-        List<Barrage> list= new ArrayList<>();
-        if(!StringUtil.isNullOrEmpty(value)){
-            list = JSONArray.parseArray(value,Barrage.class);
+        List<Barrage> list = new ArrayList<>();
+        if (!StringUtil.isNullOrEmpty(value)) {
+            list = JSONArray.parseArray(value, Barrage.class);
         }
         list.add(barrage);
         redisTemplate.opsForValue().set(key, JSONObject.toJSONString(list));

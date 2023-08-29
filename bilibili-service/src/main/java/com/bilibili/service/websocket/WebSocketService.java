@@ -1,20 +1,27 @@
 package com.bilibili.service.websocket;
 
 import com.alibaba.fastjson.JSONObject;
+import com.bilibili.common.UserMomentsConstant;
 import com.bilibili.pojo.Barrage;
 import com.bilibili.service.BarrageService;
+import com.bilibili.util.RocketMQUtil;
 import com.bilibili.util.TokenUtil;
 import io.netty.util.internal.StringUtil;
+import lombok.Data;
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.common.message.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -30,12 +37,12 @@ public class WebSocketService {
      * 2.当前连接数
      * 为了保证线程安全引入的实体类：AtomicInteger
      */
-    private static final AtomicInteger ONLINE_COUNT = new AtomicInteger(0);
+    public static final AtomicInteger ONLINE_COUNT = new AtomicInteger(0);
 
     /**
      * 3.存储每个客户端连接的连接信息
      */
-    private static final ConcurrentHashMap<String, WebSocketService> WEBSOCKET_MAP = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<String, WebSocketService> WEBSOCKET_MAP = new ConcurrentHashMap<>();
 
     /**
      * 4.每个连接的session
@@ -110,16 +117,21 @@ public class WebSocketService {
                 //1.给连接用户群发消息
                 for(Map.Entry<String,WebSocketService> entry:WEBSOCKET_MAP.entrySet()){
                     WebSocketService webSocketService = entry.getValue();
-                    if(webSocketService.session.isOpen()){
-                        webSocketService.sendMessage(message);
-                    }
+                    //获取生产者
+                    DefaultMQProducer defaultMQProducer = (DefaultMQProducer) APPLICATION_CONTEXT.getBean("barrageProducer");
+                    JSONObject jsonObject = new JSONObject();
+                    jsonObject.put("message",message);
+                    jsonObject.put("sessionId",webSocketService.getSessionId());
+                    Message msg = new Message(UserMomentsConstant.BARRAGE_TOPIC,jsonObject.toJSONString().getBytes(StandardCharsets.UTF_8));
+                    RocketMQUtil.asyncSendMsg(defaultMQProducer,msg);
                 }
                 //2.如果不是访客，则保存到数据库
                 if(userId != null){
                     Barrage barrage = JSONObject.parseObject(message,Barrage.class);
                     barrage.setUserId(userId);
                     BarrageService barrageService = (BarrageService) APPLICATION_CONTEXT.getBean("barrageService");
-                    barrageService.addBarrage(barrage);
+                    //异步保存
+                    barrageService.asyncAddBarrage(barrage);
                     //3.保存到Redis中
                     barrageService.addBarrageToRedis(barrage);
                 }
@@ -146,5 +158,24 @@ public class WebSocketService {
      */
     public void sendMessage(String message) throws IOException {
         this.session.getBasicRemote().sendText(message);
+    }
+
+    @Scheduled(fixedRate = 5000)
+    public void noticeOnlineCount() throws IOException{
+        for(Map.Entry<String,WebSocketService> entry:WebSocketService.WEBSOCKET_MAP.entrySet()){
+            WebSocketService webSocketService = entry.getValue();
+            if(webSocketService.getSession().isOpen()){
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("onlineCount:",ONLINE_COUNT.get());
+                webSocketService.sendMessage(jsonObject.toJSONString());
+            }
+        }
+    }
+
+    public Session getSession() {
+        return session;
+    }
+    public String getSessionId() {
+        return sessionId;
     }
 }
