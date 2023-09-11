@@ -7,6 +7,7 @@ import com.bilibili.pojo.Video;
 import com.bilibili.pojo.VideoCoin;
 import com.bilibili.pojo.VideoCollection;
 import com.bilibili.pojo.VideoComment;
+import com.bilibili.service.ElasticSearchService;
 import com.bilibili.service.VideoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -21,7 +22,8 @@ public class VideoController {
     private VideoService videoService;
     @Autowired
     private UserSupport userSupport;
-
+    @Autowired
+    private ElasticSearchService elasticSearchService;
     /**
      * 视频投稿
      *
@@ -33,6 +35,7 @@ public class VideoController {
         Long userId = userSupport.getCurrentUserId();
         video.setUserId(userId);
         videoService.addVideos(video);
+        elasticSearchService.addVideo(video);
         return JsonResponse.success();
     }
 
@@ -202,7 +205,6 @@ public class VideoController {
         PageResult<VideoComment> result = videoService.pageListVideoComments(size, no, videoId);
         return new JsonResponse<>(result);
     }
-
     /**
      * 视频详情
      * @param videoId
