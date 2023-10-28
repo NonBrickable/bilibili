@@ -6,7 +6,6 @@ import com.bilibili.controller.support.UserSupport;
 import com.bilibili.pojo.UserMoments;
 import com.bilibili.pojo.annotation.ControllerLimitedRole;
 import com.bilibili.pojo.annotation.DataLimited;
-import com.bilibili.pojo.auth.AuthRole;
 import com.bilibili.service.UserMomentsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

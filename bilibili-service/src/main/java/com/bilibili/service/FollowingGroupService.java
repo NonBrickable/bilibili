@@ -2,6 +2,7 @@ package com.bilibili.service;
 
 import com.bilibili.common.UserConstant;
 import com.bilibili.dao.FollowingGroupDao;
+import com.bilibili.exception.ConditionException;
 import com.bilibili.pojo.FollowingGroup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,14 @@ public class FollowingGroupService {
         followingGroup.setType(UserConstant.USER_FOLLOWING_GROUP_TYPE_USER);
         followingGroupDao.addUserFollowingGroup(followingGroup);
         return followingGroup.getId();
+    }
+
+    public void deleteUserFollowingGroup(FollowingGroup followingGroup) {
+        Long id = followingGroup.getId();
+        if(id == null){
+            throw new ConditionException("分组不存在");
+        }
+        followingGroupDao.deleteUserFollowingGroup(followingGroup);
     }
 }
 

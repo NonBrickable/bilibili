@@ -18,7 +18,7 @@ public class UserAuthController {
     private UserAuthService userAuthService;
 
     /**
-     * 获取用户所有页面权限
+     * 获取用户所有权限
      * @return
      */
     @GetMapping("/user-authorities")

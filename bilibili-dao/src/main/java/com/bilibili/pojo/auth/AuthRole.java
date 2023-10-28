@@ -10,7 +10,6 @@ import java.util.Date;
  * 角色表
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class AuthRole {
     private Long id;

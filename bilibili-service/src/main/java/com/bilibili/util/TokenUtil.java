@@ -15,7 +15,7 @@ import java.util.Date;
  * 获取令牌
  */
 public class TokenUtil {
-    private static final String ISSUER = "签发者";
+    private static final String ISSUER = "lvcq";
 
     /**
      * 生成accessToken
@@ -25,10 +25,11 @@ public class TokenUtil {
      * @throws Exception
      */
     public static String generateToken(Long userId) throws Exception {
+        //指定算法
         Algorithm algorithm = Algorithm.RSA256(RSAUtil.getPublicKey(), RSAUtil.getPrivateKey());
-        Calendar calender = Calendar.getInstance();//设置过期时间
+        Calendar calender = Calendar.getInstance();
         calender.setTime(new Date());
-        calender.add(Calendar.HOUR, 1);//设置过期时间
+        calender.add(Calendar.HOUR, 1);//增加一小时，设置过期时间
         return JWT.create().withKeyId(String.valueOf(userId))
                 .withIssuer(ISSUER)
                 .withExpiresAt(calender.getTime())

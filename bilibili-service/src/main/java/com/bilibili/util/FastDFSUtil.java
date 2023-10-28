@@ -23,8 +23,10 @@ import java.util.*;
  */
 @Component
 public class FastDFSUtil {
+    // 为方便项目开发集成的简单接口
     @Autowired
     private FastFileStorageClient fastFileStorageClient;
+    // 支持文件续传操作的接口
     @Autowired
     private AppendFileStorageClient appendFileStorageClient;
     @Autowired
@@ -36,17 +38,17 @@ public class FastDFSUtil {
     private static final String PATH_KEY = "path-key:";
     private static final int SLICE_SIZE = 1024 * 1024 * 2;
 
-    //获取文件类型
+    //1.获取文件类型，为其它方法提供参数
     public String getFileType(MultipartFile file) {
         if (file == null) {
             throw new ConditionException("非法内容！");
         }
         String fileName = file.getOriginalFilename();
         int index = fileName.lastIndexOf(".");
-        return fileName.substring(index + 1, fileName.length());
+        return fileName.substring(index + 1);
     }
 
-    //上传
+    //2.上传中小文件，没有断点续传功能
     public String uploadCommonFile(MultipartFile file) throws Exception {
         Set<MetaData> metaDataSet = new HashSet<>();
         String fileType = this.getFileType(file);
@@ -54,14 +56,19 @@ public class FastDFSUtil {
         return storePath.getPath();
     }
 
-    //上传可以断点续传的为文件
+    //3.删除文件
+    public void deleteFile(String filePath) {
+        fastFileStorageClient.deleteFile(filePath);
+    }
+
+    //4.上传可以断点续传的文件
     public String uploadAppenderFile(MultipartFile file) throws Exception {
-        String fileName = file.getName();
         String fileType = this.getFileType(file);
         StorePath storePath = appendFileStorageClient.uploadAppenderFile(DEFAULT_GROUP, file.getInputStream(), file.getSize(), fileType);
         return storePath.getPath();
     }
 
+    //5.修改可以断点续传的文件
     public void modifyAppenderFile(MultipartFile file, String filePath, long offset) throws Exception {
         appendFileStorageClient.modifyFile(DEFAULT_GROUP, filePath, file.getInputStream(), file.getSize(), offset);
     }
@@ -71,7 +78,7 @@ public class FastDFSUtil {
      *
      * @param file         文件
      * @param fileMD5      文件经过MD5加密形成的唯一字符串
-     * @param sliceNo      当前的分片编号
+     * @param sliceNo      当前的分片编号，用于和totalSliceNo比较确定是不是应该返回path
      * @param totalSliceNo 总分片数
      * @return
      */
@@ -79,21 +86,13 @@ public class FastDFSUtil {
         if (file == null || sliceNo == null || totalSliceNo == null) {
             throw new ConditionException("参数异常");
         }
+        //已经上传的分片的大小
+        String uploadedSizeKey = UPLOADED_SIZE_KEY + fileMD5;
         //路径信息
         String pathKey = PATH_KEY + fileMD5;
 
-        //已经上传的分片的大小
-        String uploadedSizeKey = UPLOADED_SIZE_KEY + fileMD5;
-
         //已经上传的分片的序号
         String uploadedNoKey = UPLOADED_NO_KEY + fileMD5;
-
-        String uploadedSizeStr = redisTemplate.opsForValue().get(uploadedSizeKey);
-        Long uploadedSize = 0L;
-        if (!StringUtil.isNullOrEmpty(uploadedSizeStr)) {
-            uploadedSize = Long.valueOf(uploadedSizeStr);
-        }
-        String fileType = this.getFileType(file);
         if (sliceNo == 1) {
             String path = this.uploadAppenderFile(file);
             if (StringUtil.isNullOrEmpty(path)) {
@@ -101,18 +100,20 @@ public class FastDFSUtil {
             }
             redisTemplate.opsForValue().set(pathKey, path);
             redisTemplate.opsForValue().set(uploadedNoKey, "1");
+            redisTemplate.opsForValue().set(uploadedSizeKey, String.valueOf(file.getSize()));
         } else {
             String filePath = redisTemplate.opsForValue().get(pathKey);
             if (StringUtil.isNullOrEmpty(filePath)) {
                 throw new ConditionException("参数错误");
             } else {
+                String uploadedSizeStr = redisTemplate.opsForValue().get(uploadedNoKey);
+                Long uploadedSize = Long.valueOf(uploadedSizeStr);
                 this.modifyAppenderFile(file, filePath, uploadedSize);
                 redisTemplate.opsForValue().increment(uploadedNoKey);
+                uploadedSize += file.getSize();
+                redisTemplate.opsForValue().set(uploadedSizeKey, String.valueOf(uploadedSize));
             }
         }
-        //修改历史上传文件大小
-        uploadedSize += file.getSize();
-        redisTemplate.opsForValue().set(uploadedSizeKey, String.valueOf(uploadedSize));
         //判断全部上传，如果全部上传，则清空redis里所有的key和value
         String uploadedNoStr = redisTemplate.opsForValue().get(uploadedNoKey);
         String resultPath = "";
@@ -164,12 +165,6 @@ public class FastDFSUtil {
         File file = File.createTempFile(fileName[0], "." + fileName[1]);
         multipartFile.transferTo(file);
         return file;
-    }
-
-
-    //删除文件
-    public void deleteFile(String filePath) {
-        fastFileStorageClient.deleteFile(filePath);
     }
 
     @Value("${fdfs.http.storage-addr}")

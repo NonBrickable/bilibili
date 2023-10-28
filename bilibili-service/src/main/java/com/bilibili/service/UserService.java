@@ -13,6 +13,7 @@ import com.bilibili.util.TokenUtil;
 import com.mysql.cj.util.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 
@@ -161,6 +162,7 @@ public class UserService {
      * @return
      * @throws Exception
      */
+    @Transactional
     public Map<String, Object> loginForDts(User user) throws Exception {
         String phone = user.getPhone();
         if (StringUtils.isNullOrEmpty(phone)) {
@@ -208,14 +210,21 @@ public class UserService {
      * @param refreshToken
      * @return
      */
-    public String refreshAccessToken(String refreshToken) throws Exception {
+    @Transactional
+    public Map<String, String> refreshAccessToken(String refreshToken) throws Exception {
         FreshTokenDetail freshTokenDetail = userDao.getFreshTokenDetail(refreshToken);
         if(freshTokenDetail == null){
             throw new ConditionException("555","token过期");
         }
         Long userId = freshTokenDetail.getUserId();
+        userDao.deleteRefreshToken(refreshToken,userId);
         String accessToken = TokenUtil.generateToken(userId);
-        return accessToken;
+        String newRefreshToken = TokenUtil.generateRefreshToken(userId);
+        userDao.addRefreshToken(newRefreshToken,userId);
+        Map<String,String> tokenMap = new HashMap<>();
+        tokenMap.put("accessToken",accessToken);
+        tokenMap.put("refreshToken",newRefreshToken);
+        return tokenMap;
     }
     public List<UserInfo> batchGetUserInfo(Set<Long> userIdList) {
         return userDao.batchGetUserInfo(userIdList);

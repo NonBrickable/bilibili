@@ -22,7 +22,7 @@ public class UserMomentsService {
     @Autowired
     private UserMomentsDao userMomentsDao;
     @Autowired
-    private ApplicationContext applicationContext;
+    private static ApplicationContext applicationContext;
     @Autowired
     private RedisTemplate<String,String> redisTemplate;
 
@@ -32,7 +32,6 @@ public class UserMomentsService {
         Message msg = new Message(UserMomentsConstant.MOMENTS_TOPIC, JSONObject.toJSONString(userMoments).getBytes(StandardCharsets.UTF_8));
         RocketMQUtil.syncSendMsg(producer,msg);
     }
-
     public List<UserMoments> getUserSubscribedMoments(Long userId) {
         String key ="subscribed-" + userId;
         String listStr = redisTemplate.opsForValue().get(key);

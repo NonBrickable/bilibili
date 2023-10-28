@@ -8,6 +8,7 @@ import com.bilibili.util.RocketMQUtil;
 import com.bilibili.util.TokenUtil;
 import io.netty.util.internal.StringUtil;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.client.producer.DefaultMQProducer;
 import org.apache.rocketmq.common.message.Message;
 import org.slf4j.Logger;
@@ -28,34 +29,32 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 @Component
 @ServerEndpoint("/websocket/{token}")
+@Slf4j
 public class WebSocketService {
+
     /**
-     * 1.日志
-     */
-    private final Logger logger = LoggerFactory.getLogger(WebSocketService.class);
-    /**
-     * 2.当前连接数
+     * 1.当前连接数
      * 为了保证线程安全引入的实体类：AtomicInteger
      */
     public static final AtomicInteger ONLINE_COUNT = new AtomicInteger(0);
 
     /**
-     * 3.存储每个客户端连接的连接信息
+     * 2.存储每个客户端连接的连接信息
      */
     public static final ConcurrentHashMap<String, WebSocketService> WEBSOCKET_MAP = new ConcurrentHashMap<>();
 
     /**
-     * 4.每个连接的session
+     * 3.每个连接的session
      */
     private Session session;
 
     /**
-     * 5.每个连接的唯一标识符
+     * 4.每个连接的唯一标识符
      */
     private String sessionId;
 
     /**
-     * 6.连接者的userId
+     * 5.连接者的userId
      */
     private Long userId;
 
@@ -85,11 +84,12 @@ public class WebSocketService {
             WEBSOCKET_MAP.put(sessionId, this);
             ONLINE_COUNT.getAndIncrement();
         }
-        logger.info("用户连接成功" + sessionId + "当前在线人数" + ONLINE_COUNT.get());
+        log.info("用户连接成功" + sessionId + "当前在线人数" + ONLINE_COUNT.get());
+        //告诉前端连接成功
         try {
             this.sendMessage("0");
         } catch (Exception e) {
-            logger.error("连接异常");
+            log.error("连接异常");
         }
     }
 
@@ -102,7 +102,7 @@ public class WebSocketService {
             WEBSOCKET_MAP.remove(sessionId);
             ONLINE_COUNT.getAndDecrement();
         }
-        logger.info("用户退出" + sessionId + "当前在线人数" + ONLINE_COUNT.get());
+        log.info("用户退出" + sessionId + "当前在线人数" + ONLINE_COUNT.get());
     }
 
     /**
@@ -111,7 +111,7 @@ public class WebSocketService {
      */
     @OnMessage
     public void onMessage(String message){
-        logger.info("用户信息：" + sessionId + ",报文：" + message);
+        log.info("用户信息：" + sessionId + ",报文：" + message);
         if(!StringUtil.isNullOrEmpty(message)){
             try{
                 //1.给连接用户群发消息
@@ -130,13 +130,13 @@ public class WebSocketService {
                     Barrage barrage = JSONObject.parseObject(message,Barrage.class);
                     barrage.setUserId(userId);
                     BarrageService barrageService = (BarrageService) APPLICATION_CONTEXT.getBean("barrageService");
-                    //异步保存
+                    //异步保存到mysql数据库中
                     barrageService.asyncAddBarrage(barrage);
-                    //3.保存到Redis中
+                    //同步保存到Redis中
                     barrageService.addBarrageToRedis(barrage);
                 }
             }catch (Exception e){
-                logger.error("弹幕接收出现问题");
+                log.error("弹幕接收出现问题");
                 e.printStackTrace();
             }
         }
@@ -148,7 +148,7 @@ public class WebSocketService {
      */
     @OnError
     public void onError(Throwable error){
-
+        log.error("出现error：" + error);
     }
 
     /**
@@ -160,6 +160,7 @@ public class WebSocketService {
         this.session.getBasicRemote().sendText(message);
     }
 
+    //定时向前端推送在线人数
     @Scheduled(fixedRate = 5000)
     public void noticeOnlineCount() throws IOException{
         for(Map.Entry<String,WebSocketService> entry:WebSocketService.WEBSOCKET_MAP.entrySet()){

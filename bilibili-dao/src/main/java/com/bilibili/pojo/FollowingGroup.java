@@ -11,7 +11,6 @@ import java.util.List;
  * 用户关注分组表
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class FollowingGroup {
     private Long id;

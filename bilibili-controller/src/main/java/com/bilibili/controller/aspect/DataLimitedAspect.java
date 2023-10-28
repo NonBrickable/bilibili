@@ -45,6 +45,7 @@ public class DataLimitedAspect {
             if(arg instanceof UserMoments){
                 UserMoments userMoments = (UserMoments)arg;
                 String type = userMoments.getType();
+                //如果权限等级不够，不能访问某些数据
                 if(roleCodeSet.contains(AuthRoleConstant.ROLE_LV0) && !"0".equals(type)){
                     throw new ConditionException("参数异常");
                 }

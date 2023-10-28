@@ -1,0 +1,34 @@
+spring:
+    datasource:
+        url: jdbc:mysql://localhost:3306/imooc_bilibili
+        username: root
+        password: 123456
+        driver-class-name: com.mysql.cj.jdbc.Driver
+    servlet:
+        multipart:
+            max-request-size: 30MB
+            max-file-size: 30MB
+    redis:
+        host: 43.138.5.79
+        port: 6379
+
+#rocketmq
+rocketmq:
+    nameServer: 43.138.5.79:9876
+
+#fdfs
+fdfs:
+    #连接超时时间
+    connect-timeout: 600
+    #读取时间
+    so-timeout: 1500
+    #缩略图
+    thumb-image:
+        height: 150
+        width: 150
+    #Tracker服务，确保tracker storage nginx已经启动
+    tracker-list: 39.107.54.180:22122
+    pool:
+        jmx-enabled: false
+    http:
+        storage-addr: 6.6.6.6

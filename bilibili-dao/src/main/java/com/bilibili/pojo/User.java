@@ -10,7 +10,6 @@ import java.util.Date;
  * 用户表
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class User {
     private Long id;

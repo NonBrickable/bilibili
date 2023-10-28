@@ -6,6 +6,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
+
 @Component
 public class UserSupport {
 
@@ -15,7 +17,8 @@ public class UserSupport {
      */
     public long getCurrentUserId(){
         ServletRequestAttributes requestAttributes = (ServletRequestAttributes)RequestContextHolder.getRequestAttributes();
-        String token = requestAttributes.getRequest().getHeader("token");
+        HttpServletRequest request = requestAttributes.getRequest();
+        String token = request.getHeader("token");
         long userId = TokenUtil.verifyToken(token);
         if(userId < 0){
             throw new ConditionException("非法用户");

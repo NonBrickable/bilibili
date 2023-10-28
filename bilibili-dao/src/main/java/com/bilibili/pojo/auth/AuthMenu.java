@@ -10,7 +10,6 @@ import java.util.Date;
  * 菜单表
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class AuthMenu {
     private Long id;

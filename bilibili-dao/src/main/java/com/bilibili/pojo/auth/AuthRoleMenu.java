@@ -10,7 +10,6 @@ import java.util.Date;
  * 角色-菜单关联表
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class AuthRoleMenu {
     private Long id;

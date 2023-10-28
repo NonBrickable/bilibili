@@ -10,7 +10,6 @@ import java.util.Date;
  * 视频点赞表
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class VideoLike {
     private Long id;

@@ -11,7 +11,6 @@ import java.util.Date;
  * 文件表，存储上传的文件信息
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class File {
     private Long id;

@@ -70,6 +70,18 @@ public class UserFollowingController {
     }
 
     /**
+     * 删除关注分组
+     * @param followingGroup
+     * @return
+     */
+    @DeleteMapping("/del-following-group")
+    public JsonResponse<String> deleteUserFollowingGroup(@RequestBody FollowingGroup followingGroup){
+        Long userId = userSupport.getCurrentUserId();
+        followingGroup.setUserId(userId);
+        followingGroupService.deleteUserFollowingGroup(followingGroup);
+        return new JsonResponse<>("成功");
+    }
+    /**
      * 获取关注分组
      * @return
      */

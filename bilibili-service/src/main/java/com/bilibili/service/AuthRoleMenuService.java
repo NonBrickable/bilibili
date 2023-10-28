@@ -1,7 +1,6 @@
 package com.bilibili.service;
 
 import com.bilibili.dao.AuthRoleMenuDao;
-import com.bilibili.pojo.auth.AuthRoleElementOperation;
 import com.bilibili.pojo.auth.AuthRoleMenu;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

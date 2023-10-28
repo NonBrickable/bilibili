@@ -10,6 +10,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -20,15 +21,19 @@ public class BarrageService {
     @Autowired
     private RedisTemplate<String, String> redisTemplate;
 
-    public void addBarrage(Barrage barrage) {
-        barrageDao.addBarrage(barrage);
-    }
-
     @Async
     public void asyncAddBarrage(Barrage barrage) {
         barrageDao.addBarrage(barrage);
     }
 
+    /**
+     * 获取弹幕/条件筛选弹幕
+     * @param videoId
+     * @param startTime
+     * @param endTime
+     * @return
+     * @throws Exception
+     */
     public List<Barrage> getBarrages(Long videoId, String startTime, String endTime) throws Exception {
         String key = "barrage-video-" + videoId;
         String value = redisTemplate.opsForValue().get(key);
@@ -59,6 +64,10 @@ public class BarrageService {
         return list;
     }
 
+    /**
+     * 放一条数据到Redis中
+     * @param barrage
+     */
     public void addBarrageToRedis(Barrage barrage) {
         String key = "barrage-video-" + barrage.getVideoId();
         //获取redis里关于某视频的所有弹幕

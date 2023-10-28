@@ -10,7 +10,7 @@ import org.springframework.http.MediaType;
 
 import java.util.Collections;
 
-//全局配置处理
+//消息转换器配置
 @Configuration
 public class JsonHttpMessageConverterConfig {
 
@@ -23,9 +23,9 @@ public class JsonHttpMessageConverterConfig {
         fastJsonConfig.setSerializerFeatures(
                 SerializerFeature.PrettyFormat,
                 SerializerFeature.WriteNullStringAsEmpty,//null字段返回为空的字符串
-                SerializerFeature.WriteNullListAsEmpty,
-                SerializerFeature.WriteMapNullValue,
-                SerializerFeature.MapSortField,
+                SerializerFeature.WriteNullListAsEmpty,//空list返回为空的字符串
+                SerializerFeature.WriteMapNullValue,//空map返回为空的字符串
+                SerializerFeature.MapSortField,//对key进行升序排序
                 SerializerFeature.DisableCircularReferenceDetect//禁用循环引用
         );
         fastJsonHttpMessageConverter.setFastJsonConfig(fastJsonConfig);

@@ -50,7 +50,7 @@ public class VideoService {
         if (total > 0) {
             list = videoDao.pageListVideos(params);
         }
-        return new PageResult<Video>(total, list);
+        return new PageResult<>(total, list);
     }
 
     public void viewVideosOnlineBySlices(HttpServletRequest request,
@@ -88,6 +88,7 @@ public class VideoService {
         return result;
     }
 
+    @Transactional
     public void addVideoCollection(VideoCollection videoCollection) {
         Long videoId = videoCollection.getVideoId();
         Long groupId = videoCollection.getGroupId();
@@ -119,6 +120,7 @@ public class VideoService {
         return result;
     }
 
+    @Transactional
     //1.参数合法性：null以及存在   2.硬币数够不够
     public void addVideoCoins(VideoCoin videoCoin) {
         Long videoId = videoCoin.getVideoId();
@@ -187,6 +189,7 @@ public class VideoService {
         params.put("start", size * (no - 1));
         params.put("limit", size);
         params.put("videoId", videoId);
+        //查询主评论数量
         Integer total = videoDao.pageCountVideoComment(videoId);
         List<VideoComment> list = new ArrayList<>();
         if (total > 0) {
@@ -209,7 +212,7 @@ public class VideoService {
             for (VideoComment rvc : list) {
                 rvc.setUserInfo(map.get(rvc.getUserId()));
                 List<VideoComment> childList = new ArrayList<>();
-                for (VideoComment cvc : childList) {
+                for (VideoComment cvc : childVideoCommentList) {
                     if (cvc.getRootId() == rvc.getId()) {
                         cvc.setUserInfo(map.get(cvc.getUserId()));
                         cvc.setReplyUserInfo(map.get(cvc.getReplyUserId()));

@@ -10,7 +10,6 @@ import java.util.Date;
  * 用户关注表
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class UserFollowing {
     private Long id;

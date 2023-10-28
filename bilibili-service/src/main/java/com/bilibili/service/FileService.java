@@ -22,6 +22,7 @@ public class FileService {
             return dbFileMD5.getUrl();
         }
         String url = fastDFSUtil.uploadFileBySlices(file,fileMd5,sliceNo,totalSliceNo);
+        //判断是不是最后一次上传
         if(!StringUtil.isNullOrEmpty(url)){
             dbFileMD5 = new File();
             dbFileMD5.setMd5(fileMd5);

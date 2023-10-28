@@ -1,7 +1,7 @@
 package com.bilibili.service;
 
 import com.bilibili.pojo.auth.AuthRoleMenu;
-import com.bilibili.pojo.auth.AuthRoleElementOperation;
+import com.bilibili.pojo.auth.AuthRoleOperation;
 import com.bilibili.pojo.auth.UserAuthorities;
 import com.bilibili.pojo.auth.UserRole;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +31,9 @@ public class UserAuthService {
         List<UserRole> userRoleList = userRoleService.getUserRole(userId);
         List<Long> roleIdList = userRoleList.stream().map(UserRole::getRoleId).collect(Collectors.toList());
         //批量查询权限
-        List<AuthRoleElementOperation> authRoleElementOperationList = authRoleService.getRoleElementOperations(roleIdList);
+        List<AuthRoleOperation> authRoleOperationList = authRoleService.getRoleOperations(roleIdList);
         List<AuthRoleMenu> authRoleMenuList = authRoleService.getAuthRoleMenus(roleIdList);
-        UserAuthorities userAuthorities = new UserAuthorities(authRoleElementOperationList,authRoleMenuList);
+        UserAuthorities userAuthorities = new UserAuthorities(authRoleOperationList,authRoleMenuList);
         return userAuthorities;
     }
 }

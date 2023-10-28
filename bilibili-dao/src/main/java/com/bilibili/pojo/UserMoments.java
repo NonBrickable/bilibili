@@ -10,7 +10,6 @@ import java.util.Date;
  * 用户动态表
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
 public class UserMoments {
     private Long id;

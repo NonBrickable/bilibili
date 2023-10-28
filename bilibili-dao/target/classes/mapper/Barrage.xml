@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 为根元素节点， 一个namespace对应一个dao -->
+<mapper namespace="com.bilibili.dao.BarrageDao">
+    <insert id="addBarrage" parameterType="com.bilibili.pojo.Barrage">
+        insert into t_barrage(video_id,user_id,content,occur_time,create_time)
+        values (#{videoId},#{userId},#{content},#{occurTime},now())
+    </insert>
+    <select id="getBarrages" parameterType="map" resultType="com.bilibili.pojo.Barrage">
+        select *
+        from t_barrage
+        where video_id = #{videoId}
+        <if test="startDate != null and startDate != ''">
+            and create_time <![CDATA[>=]]> #{startDate}
+        </if>
+        <if test="endDate != null and endDate != ''">
+            and creare_time <![CDATA[<=]]> #{endDate}
+        </if>
+    </select>
+</mapper>

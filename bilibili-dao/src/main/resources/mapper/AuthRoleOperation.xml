@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- mapper 为根元素节点， 一个namespace对应一个dao -->
+<mapper namespace="com.bilibili.dao.AuthRoleOperationDao">
+    <resultMap id="AuthOperationResultMap" type="com.bilibili.pojo.auth.AuthRoleOperation">
+        <id column="id" property="id"/>
+        <id column="role_id" property="roleId"/>
+        <id column="element_id" property="elementId"/>
+        <association property="authOperation" javaType="com.bilibili.pojo.auth.AuthOperation">
+            <id column="element_name" property="elementName"/>
+            <id column="element_code" property="elementCode"/>
+            <id column="operation_type" property="operationType"/>
+        </association>
+    </resultMap>
+    <select id="getRoleOperationsByRoleIds" parameterType="list" resultMap="AuthOperationResultMap">
+        select areo.*, ao.element_name, ao.element_code, ao.operation_type
+        from t_auth_role_operation areo
+        join t_auth_operation ao
+        on areo.element_id = ao.id
+        where areo.role_id in
+        <foreach collection="roleIdList" index="index" item="roleId" open="(" close=")" separator=",">
+            #{roleId}
+        </foreach>
+    </select>
+
+</mapper>
